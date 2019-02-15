@@ -1,3 +1,8 @@
+.vs/
+obj/
+425Final.sln
+Assembly-CSharp.csproj
+Assembly-CSharp.Editor.csproj
 Library/
 Logs/
 Packages/
