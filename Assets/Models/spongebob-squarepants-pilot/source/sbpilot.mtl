@@ -1,0 +1,20 @@
+# Material file for sbpilot.obj
+
+newmtl Mesh_1563_rip
+	Ns 10
+	d 1
+	illum 2
+	Kd 0.588 0.588 0.588
+	Ks 0.0 0.0 0.0
+	Ka 0.588 0.588 0.588
+	map_Kd Tex_0045_0.png
+
+newmtl Mesh_1743_rip
+	Ns 10
+	d 1
+	illum 2
+	Kd 0.588 0.588 0.588
+	Ks 0.0 0.0 0.0
+	Ka 0.588 0.588 0.588
+	map_Kd Tex_0046_0.png
+

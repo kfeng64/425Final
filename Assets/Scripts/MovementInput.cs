@@ -39,16 +39,19 @@ public class MovementInput : MonoBehaviour {
 
     // Update is called once per frame
     void Update() {
-        isGrounded = checkGrounded();
+        //isGrounded = checkGrounded();
+        isGrounded = false;
         isJumping = !isGrounded;
-        print(isGrounded);
+        //print(isGrounded);
         InputMagnitude();
         Jump();
     }
 
+    /*
     bool checkGrounded() {
         return Physics.Raycast(transform.position, Vector3.down, 0.05f, 1 << LayerMask.NameToLayer("Ground"));
     }
+    */
 
     void Jump() {
         if (Input.GetKeyDown(KeyCode.Space)) {            
