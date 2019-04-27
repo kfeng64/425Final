@@ -29,7 +29,7 @@ public class P1Movement : MonoBehaviour
 
     // Update is called once per frame
     void FixedUpdate() {
-        CheckForGrounded();
+        //CheckForGrounded();
         moveV = Input.GetAxis("P1Vertical") * speed;
 		moveH = Input.GetAxis("P1Horizontal") * speed;
 
@@ -62,20 +62,20 @@ public class P1Movement : MonoBehaviour
 
 	}
 
-    //private void OnTriggerEnter(Collider other) {
-    //    if (other.CompareTag("Ground")) {
-    //        isGrounded = true;
-    //    }
-    //}
-
-    //private void OnTriggerExit(Collider other) {
-    //    if (other.CompareTag("Ground")) {
-    //        isGrounded = false;
-    //    }
-    //}
-
-    void CheckForGrounded() {
-        isGrounded = Physics.Raycast(transform.position, Vector3.down, distToGround);
+    private void OnTriggerEnter(Collider other) {
+        if (other.CompareTag("Ground")) {
+            isGrounded = true;
+        }
     }
+
+    private void OnTriggerExit(Collider other) {
+        if (other.CompareTag("Ground")) {
+            isGrounded = false;
+        }
+    }
+
+    //void CheckForGrounded() {
+    //    isGrounded = Physics.Raycast(transform.position, Vector3.down, distToGround);
+    //}
 
 }
