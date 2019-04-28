@@ -58,6 +58,25 @@ public class Player1Movement : MonoBehaviour
         anim.SetFloat("InputX", Horizontal);
         anim.SetFloat("InputZ", Vertical);
 
+        if (yVelocity >= 0 && !controller.isGrounded) {
+            anim.SetBool("isJumping", true);
+        } else {
+            anim.SetBool("isJumping", false);
+        }
+        if (yVelocity < 0 && !controller.isGrounded) {
+            anim.SetBool("isFalling", true);
+        } else {
+            anim.SetBool("isFalling", false);
+        }
+
+        if (controller.isGrounded) {
+            anim.SetBool("isGrounded", true);
+        } else {
+            anim.SetBool("isGrounded", false);
+        }
+
+        anim.SetFloat("yVelocity", yVelocity);
+
         // By default, character cant wall jump. Will be set to true if controller hits wall
         canWallJump = false;
 
