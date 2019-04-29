@@ -236,7 +236,7 @@ ModelImporter:
       name: Jump_Forward_Inplace
       takeName: Take 001
       firstFrame: 0
-      lastFrame: 51
+      lastFrame: 27
       wrapMode: 0
       orientationOffsetY: 0
       level: 0
