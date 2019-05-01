@@ -15,13 +15,13 @@ public class Player2Movement : MonoBehaviour {
         camTrans;
 
     private float
-        yVelocity,
         velocity = 0f,
         airForward,
         airRight,
         acceleration = 2.5f,
         extraSpeed = 1,
         timer;
+
     private bool
         startedJump,
         startedWallJump,
@@ -30,10 +30,17 @@ public class Player2Movement : MonoBehaviour {
         canRoll,
         canWallJump,
         resettingExtraSpeed;
+    private Vector3 p1Forward;
+
+    public bool
+        hasControl;
+    public float
+        yVelocity;
+
 
     private int numJumps;
     private CharacterController controller;
-    private Animator anim;
+    public Animator anim;
     private Vector3 originalPos, localMove, colNormal, airMovement;
 
     KeyCode left = KeyCode.LeftArrow;
@@ -42,47 +49,77 @@ public class Player2Movement : MonoBehaviour {
     KeyCode down = KeyCode.DownArrow;
     KeyCode jump = KeyCode.RightControl;
     KeyCode roll = KeyCode.RightShift;
+    String playerH = "P2Horizontal";
+    String playerV = "P2Vertical";
+    String opponent = "Player1";
+    String opponentAtkArea = "AttackArea1";
+
     float Horizontal, Vertical;
+    public bool isInHitStun, startedAttack;
+    public Vector3 oldPosition;
+    public float horizontalHitDist = 0.0f, horizontalHitSpeed = 1;
+    bool isInHitCollider = false;
 
     private void Start() {
         controller = GetComponent<CharacterController>();
         originalPos = transform.position;
         colNormal = Vector3.zero;
         anim = GetComponent<Animator>();
+        hasControl = true;
+
     }
 
-
     private void Update() {
-        Horizontal = Input.GetAxis("P2Horizontal");
-        Vertical = Input.GetAxis("P2Vertical");
-        anim.SetFloat("InputX", Horizontal);
-        anim.SetFloat("InputZ", Vertical);
-       
-        if (yVelocity >= 0 && !controller.isGrounded) {
-            anim.SetBool("isJumping", true);
+        AnimationUpdate();
+        if (hasControl) {
+            InControl();
         } else {
-            anim.SetBool("isJumping", false);
-        }
-        if (yVelocity < 0 && !controller.isGrounded) {
-            anim.SetBool("isFalling", true);
-        } else {
-            anim.SetBool("isFalling", false);
+            NotInControl();
         }
 
-        if (controller.isGrounded) {
-            anim.SetBool("isGrounded", true);
+    }
+
+    void AnimationUpdate() {
+        Horizontal = Input.GetAxis(playerH);
+        Vertical = Input.GetAxis(playerV);
+        if (hasControl) {
+            anim.SetFloat("InputX", Horizontal);
+            anim.SetFloat("InputZ", Vertical);
         } else {
-            anim.SetBool("isGrounded", false);
+            anim.SetFloat("InputX", 0);
+            anim.SetFloat("InputZ", 0);
         }
 
-        if (isRolling) {
-            anim.SetBool("isRolling", true);
-        } else {
-            anim.SetBool("isRolling", false);
+        if (hasControl) {
+            if (controller.isGrounded) {
+                anim.SetBool("isGrounded", true);
+            } else {
+                anim.SetBool("isGrounded", false);
+            }
+
+            if (yVelocity >= 0 && !controller.isGrounded) {
+                anim.SetBool("isJumping", true);
+            } else {
+                anim.SetBool("isJumping", false);
+            }
+            if (yVelocity < 0 && !controller.isGrounded) {
+                anim.SetBool("isFalling", true);
+            } else {
+                anim.SetBool("isFalling", false);
+            }
+
+            if (isRolling) {
+                anim.SetBool("isRolling", true);
+            } else {
+                anim.SetBool("isRolling", false);
+            }
+
+            anim.SetFloat("yVelocity", yVelocity);
         }
 
-        anim.SetFloat("yVelocity", yVelocity);
+    }
 
+    void InControl() {
         // By default, character cant wall jump. Will be set to true if controller hits wall
         canWallJump = false;
 
@@ -110,10 +147,6 @@ public class Player2Movement : MonoBehaviour {
             Restart();
         }
 
-        // Gravity
-        controller.Move(new Vector3(0, yVelocity, 0) * Time.deltaTime);
-        Gravity();
-
         // Rolling
         if (controller.isGrounded && !isRolling) {
             canRoll = true;
@@ -136,6 +169,10 @@ public class Player2Movement : MonoBehaviour {
             ResetExtraSpeed();
         }
 
+        // Gravity
+        controller.Move(new Vector3(0, yVelocity, 0) * Time.deltaTime);
+        Gravity();
+
 
         Debug.DrawRay(transform.position, transform.forward, Color.red);
         Debug.DrawRay(transform.position, localMove, Color.green);
@@ -143,6 +180,63 @@ public class Player2Movement : MonoBehaviour {
         colNormal.y = 0;
 
         Util1.StartTimer(3);
+    }
+
+    void NotInControl() {
+        canWallJump = false;
+        MovementInput();
+
+        if (!controller.isGrounded) {
+            canRoll = false;
+            MoveCharAir();
+        }
+
+        if (transform.position.y <= -1.3) {
+            Restart();
+        }
+
+        if (isRolling == true) {
+            WhileRolling();
+        }
+
+        if (startedAttack) {
+            controller.Move(transform.forward * Time.deltaTime * horizontalHitSpeed);
+            if (Vector3.Distance(oldPosition, transform.position) >= horizontalHitDist) {
+                startedAttack = false;
+            }
+        }
+
+
+        if (isInHitStun) {
+            controller.Move(p1Forward * Time.deltaTime * horizontalHitSpeed);
+            if (Vector3.Distance(oldPosition, transform.position) >= horizontalHitDist && controller.isGrounded) {
+                isInHitStun = false;
+            }
+        }
+
+        // Gravity
+        controller.Move(new Vector3(0, yVelocity, 0) * Time.deltaTime);
+        Gravity();
+    }
+
+    public void SetHitDist(float distH, float speedFactorH, float yVelocity) {
+        horizontalHitDist = distH;
+        horizontalHitSpeed = speedFactorH;
+        if (isInHitCollider) {
+            this.yVelocity = yVelocity;
+        }
+
+    }
+
+    public void KnockBack(Vector3 p1) {
+        if (isInHitCollider) {
+            //yVelocity = jumpForce;
+            hasControl = false;
+            isInHitStun = true;
+            p1Forward = p1;
+            oldPosition = transform.position;
+        }
+
     }
 
     // Lerp extra speed back to normal speed
@@ -462,14 +556,23 @@ public class Player2Movement : MonoBehaviour {
             }
             colNormal = hit.normal.normalized;
         }
+
+        
+            
     }
 
-    void OnCollisionEnter(Collision collision) {
+    void OnTriggerEnter(Collider collision) {
+        if (collision.gameObject.tag == opponentAtkArea) {
+            isInHitCollider = true;
+        }
 
     }
 
-    void OnCollisionExit(Collision collision) {
 
+    void OnTriggerExit(Collider collision) {
+        if (collision.gameObject.tag == opponentAtkArea) {
+            isInHitCollider = false;
+        }
     }
 
 
