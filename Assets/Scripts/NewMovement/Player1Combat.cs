@@ -4,15 +4,18 @@ using UnityEngine;
 
 public class Player1Combat : MonoBehaviour {
 
-    public Player1Movement p1;
-    public Player2Movement p2;
+    public Player1Movement player;
+    public Player2Movement opponent;
     public GameObject o1, o2;
 
-    bool canAttack;
+    public bool canAttack;
     bool isComboing;
     float comboTime;
     int combo;
     public Animator anim;
+    string opponentTag = "Player2";
+    KeyCode punch = KeyCode.E;
+    KeyCode spin = KeyCode.R;
 
     // Start is called before the first frame update
     void Start() {
@@ -26,10 +29,12 @@ public class Player1Combat : MonoBehaviour {
     // Update is called once per frame
     void Update() {
         
-        if (Input.GetKeyDown(KeyCode.E)) {
-            if (canAttack) {
-                Punch();
-            }
+        if (Input.GetKeyDown(punch) && canAttack) {
+            Punch();
+        }
+
+        if (Input.GetKeyDown(spin) && canAttack) {
+            SpinAttack();
         }
 
         if (isComboing) {
@@ -43,9 +48,9 @@ public class Player1Combat : MonoBehaviour {
     }
 
     void Punch() {
-        p1.hasControl = false;
+        player.hasControl = false;
         isComboing = true;
-        float attackTime = 0.0f;
+        float attackTime = -1.0f;
         combo++;
 
         AnimationClip[] clips = anim.runtimeAnimatorController.animationClips;
@@ -63,14 +68,10 @@ public class Player1Combat : MonoBehaviour {
                     if (combo == 3)
                         attackTime = clip.length;
                     break;
-                default:
-                    attackTime = -1;
-                    break;
             }
         }
-        
 
-        if (attackTime != -1) {
+        if (attackTime != -1.0f) {
             canAttack = false;
             Invoke("AttackCoolDown", attackTime / 3.5f);
 
@@ -80,36 +81,72 @@ public class Player1Combat : MonoBehaviour {
                 switch (combo) {
                     case 1:
                         anim.Play("KB_m_Jab_R");
-                        p1.SetHitDist(0.2f, 1, -2);
-                        p2.SetHitDist(0.2f, 1, -2);
+                        player.SetHitDist(0.2f, 1, -2);
+                        opponent.SetHitDist(0.2f, 1, -2);
                         break;
                     case 2:
                         anim.Play("KB_m_Jab_L");
-                        p1.SetHitDist(0.2f, 1, -2);
-                        p2.SetHitDist(0.2f, 1, -2);
+                        player.SetHitDist(0.2f, 1, -2);
+                        opponent.SetHitDist(0.2f, 1, -2);
                         break;
                     case 3:
                         anim.Play("KB_p_Uppercut_R");
-                        p1.SetHitDist(0.5f, 10, -2);
-                        p2.SetHitDist(0.025f, .5f, 10.0f);
-                        Physics.IgnoreCollision(o1.GetComponent<CharacterController>(), o2.GetComponent<CharacterController>(), true);
-                        Invoke("ResetCollision", .75f);
+                        player.SetHitDist(0.5f, 10, -2);
+                        opponent.SetHitDist(0.025f, .5f, 7.0f);
+                        opponent.sentAirborne = true;
+                        //Physics.IgnoreCollision(o1.GetComponent<CharacterController>(), o2.GetComponent<CharacterController>(), true);
+                        //Invoke("ResetCollision", .75f);
                         break;
                 }
             }
-            p1.startedAttack = true;
-            p2.KnockBack(transform.forward);
+            player.startedAttack = true;
+            if (opponent.isInHitCollider) {
+                opponent.KnockBack(transform.forward);
+            }
+            
 
             if (comboTime > 0) {
                 CancelInvoke("SetHasControlTrue");
             }
             Invoke("SetHasControlTrue", attackTime);
-            p1.oldPosition = transform.position;
+            player.oldPosition = transform.position;
+        }
+    }
+
+    void SpinAttack() {
+        player.hasControl = true;
+        isComboing = true;
+        float attackTime = -1.0f;
+        combo++;
+
+        AnimationClip[] clips = anim.runtimeAnimatorController.animationClips;
+        foreach (AnimationClip clip in clips) {
+            switch (clip.name) {
+                case "SpinAttack":
+                    attackTime = clip.length;
+                    break;
+            }
+        }
+
+        if (attackTime != -1.0f) {
+            canAttack = false;
+            Invoke("AttackCoolDown", attackTime);
+
+            comboTime = attackTime;
+
+            if (comboTime > 0) {
+                anim.Play("SpinAttack");
+                //opponent.SetHitDist(0.0f, 0.0f, 6.0f); 
+            }
+
+            player.startedAttack = true;
+            //opponent.KnockBack(transform.forward);
+            player.oldPosition = transform.position;
         }
     }
 
     void SetHasControlTrue() {
-        p1.hasControl = true;
+        player.hasControl = true;
     }
 
     void AttackCoolDown() {
@@ -121,7 +158,7 @@ public class Player1Combat : MonoBehaviour {
     }
 
     private void OnTriggerStay(Collider other) {
-        if (Input.GetKeyDown(KeyCode.E) && other.CompareTag("Player2")) {
+        if (Input.GetKeyDown(KeyCode.E) && other.CompareTag(opponentTag)) {
             transform.LookAt(other.transform);
             transform.eulerAngles = new Vector3(0, transform.eulerAngles.y, 0);
         }

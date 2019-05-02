@@ -30,7 +30,7 @@ public class Player2Movement : MonoBehaviour {
         canRoll,
         canWallJump,
         resettingExtraSpeed;
-    private Vector3 p1Forward;
+    public Vector3 opponentForward;
 
     public bool
         hasControl;
@@ -53,12 +53,14 @@ public class Player2Movement : MonoBehaviour {
     String playerV = "P2Vertical";
     String opponent = "Player1";
     String opponentAtkArea = "AttackArea1";
+    String opponentSpinArea = "SpinArea1";
 
     float Horizontal, Vertical;
-    public bool isInHitStun, startedAttack;
+    public bool isHit, startedAttack;
     public Vector3 oldPosition;
     public float horizontalHitDist = 0.0f, horizontalHitSpeed = 1;
-    bool isInHitCollider = false;
+    public bool isInHitCollider = false, isInSpinCollider, sentAirborne = false;
+    public GameObject p1, p2;
 
     private void Start() {
         controller = GetComponent<CharacterController>();
@@ -77,6 +79,16 @@ public class Player2Movement : MonoBehaviour {
             NotInControl();
         }
 
+
+        if (controller.isGrounded) {
+            sentAirborne = false;
+        }
+
+        if (sentAirborne) {
+            Physics.IgnoreCollision(p1.GetComponent<CharacterController>(), p2.GetComponent<CharacterController>(), true);
+        } else {
+            Physics.IgnoreCollision(p1.GetComponent<CharacterController>(), p2.GetComponent<CharacterController>(), false);
+        }
     }
 
     void AnimationUpdate() {
@@ -91,12 +103,24 @@ public class Player2Movement : MonoBehaviour {
         }
 
         if (hasControl) {
-            if (controller.isGrounded) {
-                anim.SetBool("isGrounded", true);
-            } else {
-                anim.SetBool("isGrounded", false);
-            }
+            anim.SetBool("hasControl", true);
+        } else {
+            anim.SetBool("hasControl", false);
+        }
 
+        if (sentAirborne) {
+            anim.SetBool("sentAirborne", true);
+        } else {
+            anim.SetBool("sentAirborne", false);
+        }
+
+        if (controller.isGrounded) {
+            anim.SetBool("isGrounded", true);
+        } else {
+            anim.SetBool("isGrounded", false);
+        }
+
+        if (hasControl) {
             if (yVelocity >= 0 && !controller.isGrounded) {
                 anim.SetBool("isJumping", true);
             } else {
@@ -169,6 +193,7 @@ public class Player2Movement : MonoBehaviour {
             ResetExtraSpeed();
         }
 
+
         // Gravity
         controller.Move(new Vector3(0, yVelocity, 0) * Time.deltaTime);
         Gravity();
@@ -206,13 +231,15 @@ public class Player2Movement : MonoBehaviour {
             }
         }
 
-
-        if (isInHitStun) {
-            controller.Move(p1Forward * Time.deltaTime * horizontalHitSpeed);
-            if (Vector3.Distance(oldPosition, transform.position) >= horizontalHitDist && controller.isGrounded) {
-                isInHitStun = false;
+        if (isHit) {
+            controller.Move(opponentForward * Time.deltaTime * horizontalHitSpeed);
+            if (Vector3.Distance(oldPosition, transform.position) >= horizontalHitDist) {
+                isHit = false;
+                anim.SetBool("isHit", false);
             }
         }
+
+
 
         // Gravity
         controller.Move(new Vector3(0, yVelocity, 0) * Time.deltaTime);
@@ -228,17 +255,33 @@ public class Player2Movement : MonoBehaviour {
 
     }
 
-    public void KnockBack(Vector3 p1) {
-        if (isInHitCollider) {
-            //yVelocity = jumpForce;
+    public void SpinHit(Vector3 vec) {
+        if (isInSpinCollider) {
+            KnockBackAnimation();
+            isHit = true;
             hasControl = false;
-            isInHitStun = true;
-            p1Forward = p1;
-            oldPosition = transform.position;
+            yVelocity = 3.7f;
+            controller.Move(-vec * (Time.deltaTime * 5));
         }
-
     }
 
+    public void KnockBack(Vector3 vec) {
+        KnockBackAnimation();
+        hasControl = false;
+        isHit = true;
+        opponentForward = vec;
+        oldPosition = transform.position;
+    }
+
+    void KnockBackAnimation() {
+        if (!sentAirborne) {
+            anim.SetBool("isHit", true);
+            anim.Play("GroundHitStun");
+        } else {
+            anim.SetBool("isHit", true);
+            anim.Play("KB_HighKO_Air");
+        }
+    }
     // Lerp extra speed back to normal speed
     void ResetExtraSpeed() {
         if (extraSpeed == 1.0f) {
@@ -556,16 +599,19 @@ public class Player2Movement : MonoBehaviour {
             }
             colNormal = hit.normal.normalized;
         }
+    }
 
-        
-            
+    public void PushOutFromOtherCollider() {
+        controller.Move(transform.forward * -1.0f * (Time.deltaTime * 2.5f));
+        // Gravity
+        controller.Move(new Vector3(0, yVelocity, 0) * Time.deltaTime);
+        Gravity();
     }
 
     void OnTriggerEnter(Collider collision) {
         if (collision.gameObject.tag == opponentAtkArea) {
             isInHitCollider = true;
         }
-
     }
 
 
