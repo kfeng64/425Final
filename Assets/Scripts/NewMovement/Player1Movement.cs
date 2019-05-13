@@ -59,7 +59,7 @@ public class Player1Movement : MonoBehaviour {
     public bool isHit, startedAttack, currentlyAttacking = false;
     public Vector3 oldPosition;
     public float horizontalHitDist = 0.0f, horizontalHitSpeed = 1;
-    public bool isInHitCollider = false, isInSpinCollider, sentAirborne = false, onGroundAfterAirborne = false;
+    public bool isInHitCollider = false, isInSpinCollider, sentAirborne = false, onGroundAfterAirborne = false, isBlocking = false;
     public GameObject player, opponent;
     public float hitStunTimer = 0.0f;
     public bool invincible = false, isSprinting = false, isInBackFistCollider = false;
@@ -83,6 +83,9 @@ public class Player1Movement : MonoBehaviour {
     }
 
     private void Update() {
+        Horizontal = Input.GetAxis(playerH);
+        Vertical = Input.GetAxis(playerV);
+
 
 
         AnimationUpdate();
@@ -128,7 +131,6 @@ public class Player1Movement : MonoBehaviour {
             }
         }
 
-
     }
 
 
@@ -167,8 +169,7 @@ public class Player1Movement : MonoBehaviour {
     }
 
     void AnimationUpdate() {
-        Horizontal = Input.GetAxis(playerH);
-        Vertical = Input.GetAxis(playerV);
+        isBlocking = anim.GetBool("isBlocking");
 
         if (isSprinting && CheckForMovementKeys()) {
             anim.SetBool("isSprinting", true);
@@ -234,6 +235,7 @@ public class Player1Movement : MonoBehaviour {
     }
 
     void InControl() {
+        hitStunTimer = 0;
         // By default, character cant wall jump. Will be set to true if controller hits wall
         canWallJump = false;
 
@@ -311,6 +313,7 @@ public class Player1Movement : MonoBehaviour {
         canWallJump = false;
         MovementInput();
 
+
         if (!controller.isGrounded) {
             canRoll = false;
             MoveCharAir();
@@ -332,6 +335,10 @@ public class Player1Movement : MonoBehaviour {
         }
 
         if (isHit) {
+            if (isBlocking) {
+                transform.LookAt(opponent.transform);
+                transform.eulerAngles = new Vector3(0, transform.eulerAngles.y, 0);
+            }
             controller.Move(opponentForward * Time.deltaTime * horizontalHitSpeed);
             if (Vector3.Distance(oldPosition, transform.position) >= horizontalHitDist) {
                 isHit = false;
@@ -352,7 +359,7 @@ public class Player1Movement : MonoBehaviour {
         if (!invincible) {
             horizontalHitDist = distH;
             horizontalHitSpeed = speedFactorH;
-            if (isInHitCollider) {
+            if (isInHitCollider && !isBlocking) {
                 this.yVelocity = yVelocity;
             }
         }
@@ -364,10 +371,12 @@ public class Player1Movement : MonoBehaviour {
     }
 
     public void GotSpinHitted(Vector3 vec) {
-        if (isInSpinCollider && !invincible) {
+        if (isInSpinCollider) {
+            isHit = true;
+        }
+        if (isInSpinCollider && !invincible && !isBlocking) {
             sentAirborne = true;
             KnockBackAnimation();
-            isHit = true;
             hasControl = false;
             yVelocity = 3.7f;
             controller.Move(-vec * (Time.deltaTime * 5));
@@ -375,10 +384,10 @@ public class Player1Movement : MonoBehaviour {
     }
 
     public void GotKnockBacked(Vector3 vec) {
-        if (!invincible) {
+        isHit = true;
+        if (!invincible || !isBlocking) {
             KnockBackAnimation();
             hasControl = false;
-            isHit = true;
             opponentForward = vec;
             oldPosition = transform.position;
         }
@@ -386,13 +395,16 @@ public class Player1Movement : MonoBehaviour {
     }
 
     void KnockBackAnimation() {
-        if (!sentAirborne) {
-            anim.SetBool("isHit", true);
-            anim.Play("GroundHitStun");
-        } else {
-            anim.SetBool("isHit", true);
-            anim.Play("KB_HighKO_Air");
+        if (!invincible && !isBlocking) {
+            if (!sentAirborne) {
+                anim.SetBool("isHit", true);
+                anim.Play("GroundHitStun");
+            } else {
+                anim.SetBool("isHit", true);
+                anim.Play("KB_HighKO_Air");
+            }
         }
+
     }
     // Lerp extra speed back to normal speed
     void ResetExtraSpeed() {

@@ -2,14 +2,15 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Player1Combat : MonoBehaviour {
+public class Player2Combat : MonoBehaviour {
 
-    public Player1Movement player;
-    public Player2Movement opponent;
-    string opponentTag = "Player2";
-    KeyCode punch = KeyCode.E;
-    KeyCode spin = KeyCode.R;
-    KeyCode block = KeyCode.G;
+    public Player2Movement player;
+    public Player1Movement opponent;
+    string opponentTag = "Player1";
+    KeyCode punch = KeyCode.P;
+    KeyCode spin = KeyCode.O;
+    KeyCode block = KeyCode.I;
+
     //public GameObject o1, o2;
 
     public bool canAttack, canBackFistOutOfSprint = false, isBlocking = false;
@@ -17,6 +18,7 @@ public class Player1Combat : MonoBehaviour {
     float comboTime;
     int combo;
     public Animator anim;
+
     
 
     // Start is called before the first frame update
@@ -25,12 +27,12 @@ public class Player1Combat : MonoBehaviour {
         isComboing = false;
         comboTime = 0.0f;
         combo = 0;
-        
+
     }
 
     // Update is called once per frame
     void Update() {
-        
+
         if (player.isSprinting) {
             canAttack = false;
             canBackFistOutOfSprint = true;
@@ -53,7 +55,7 @@ public class Player1Combat : MonoBehaviour {
             SpinAttack();
         }
 
-        if (Input.GetKey(block) && canAttack && player.hitStunTimer <= 0) {
+        if (Input.GetKey(block)) {
             isBlocking = true;
         } else {
             isBlocking = false;
@@ -75,9 +77,9 @@ public class Player1Combat : MonoBehaviour {
     void Block() {
         if (isBlocking) {
             player.hasControl = false;
-            
+
         }
-        
+
     }
 
     void BackFist() {
@@ -168,11 +170,11 @@ public class Player1Combat : MonoBehaviour {
                         anim.Play("KB_p_Uppercut_R");
                         player.SetHitDist(0.5f, 10, -2);
                         opponent.SetHitDist(0.025f, .5f, 7.0f);
-                        
+
                         break;
                 }
             }
-            
+
             player.startedAttack = true;
             if (opponent.isInHitCollider && !opponent.isBlocking) {
                 if (combo == 3) {
@@ -181,7 +183,7 @@ public class Player1Combat : MonoBehaviour {
                 opponent.GotKnockBacked(transform.forward);
                 opponent.hitStunTimer = 0.45f;
             }
-            
+
 
             if (comboTime > 0) {
                 CancelInvoke("CurrentlyAttacking");
