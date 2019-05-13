@@ -8,7 +8,7 @@ public class Player1Combat : MonoBehaviour {
     public Player2Movement opponent;
     public GameObject o1, o2;
 
-    public bool canAttack;
+    public bool canAttack, canBackFistOutOfSprint = false;
     bool isComboing;
     float comboTime;
     int combo;
@@ -29,6 +29,20 @@ public class Player1Combat : MonoBehaviour {
     // Update is called once per frame
     void Update() {
         
+        if (player.isSprinting) {
+            canAttack = false;
+            canBackFistOutOfSprint = true;
+        } else {
+            canAttack = true;
+            canBackFistOutOfSprint = false;
+        }
+
+
+
+        if (Input.GetKeyDown(punch) && canBackFistOutOfSprint) {
+            BackFist();
+        }
+
         if (Input.GetKeyDown(punch) && canAttack) {
             Punch();
         }
@@ -45,10 +59,53 @@ public class Player1Combat : MonoBehaviour {
             isComboing = false;
             combo = 0;
         }
+
+    }
+
+    void BackFist() {
+        player.hasControl = false;
+        player.currentlyAttacking = true;
+        isComboing = true;
+        float attackTime = -1.0f;
+        combo++;
+
+        AnimationClip[] clips = anim.runtimeAnimatorController.animationClips;
+        foreach (AnimationClip clip in clips) {
+            switch (clip.name) {
+                case "KB_m_BackfistRoundFar_R":
+                    attackTime = clip.length / 3;
+                    break;
+            }
+        }
+
+        if (attackTime != -1.0f) {
+            canAttack = false;
+            Invoke("AttackCoolDown", attackTime);
+
+            comboTime = attackTime;
+
+            if (comboTime > 0) {
+                anim.Play("KB_m_BackfistRoundFar_R");
+                player.SetHitDist(1.7f, 10, -2);
+                opponent.SetHitDist(3.0f, 5, -2);
+            }
+
+            player.startedAttack = true;
+
+            if (comboTime > 0) {
+                CancelInvoke("CurrentlyAttacking");
+                CancelInvoke("SetHasControlTrue");
+            }
+
+            Invoke("CurrentlyAttacking", attackTime);
+            Invoke("SetHasControlTrue", attackTime);
+            player.oldPosition = transform.position;
+        }
     }
 
     void Punch() {
         player.hasControl = false;
+        player.currentlyAttacking = true;
         isComboing = true;
         float attackTime = -1.0f;
         combo++;
@@ -93,21 +150,26 @@ public class Player1Combat : MonoBehaviour {
                         anim.Play("KB_p_Uppercut_R");
                         player.SetHitDist(0.5f, 10, -2);
                         opponent.SetHitDist(0.025f, .5f, 7.0f);
-                        opponent.sentAirborne = true;
-                        //Physics.IgnoreCollision(o1.GetComponent<CharacterController>(), o2.GetComponent<CharacterController>(), true);
-                        //Invoke("ResetCollision", .75f);
+                        
                         break;
                 }
             }
+            
             player.startedAttack = true;
             if (opponent.isInHitCollider) {
-                opponent.KnockBack(transform.forward);
+                if (combo == 3) {
+                    opponent.sentAirborne = true;
+                }
+                opponent.GotKnockBacked(transform.forward);
+                opponent.hitStunTimer = 0.45f;
             }
             
 
             if (comboTime > 0) {
+                CancelInvoke("CurrentlyAttacking");
                 CancelInvoke("SetHasControlTrue");
             }
+            Invoke("CurrentlyAttacking", attackTime);
             Invoke("SetHasControlTrue", attackTime);
             player.oldPosition = transform.position;
         }
@@ -129,6 +191,7 @@ public class Player1Combat : MonoBehaviour {
         }
 
         if (attackTime != -1.0f) {
+
             canAttack = false;
             Invoke("AttackCoolDown", attackTime);
 
@@ -149,12 +212,12 @@ public class Player1Combat : MonoBehaviour {
         player.hasControl = true;
     }
 
-    void AttackCoolDown() {
-        canAttack = true;
+    void CurrentlyAttacking() {
+        player.currentlyAttacking = false;
     }
 
-    void ResetCollision() {
-        Physics.IgnoreCollision(o1.GetComponent<CharacterController>(), o2.GetComponent<CharacterController>(), false);
+    void AttackCoolDown() {
+        canAttack = true;
     }
 
     private void OnTriggerStay(Collider other) {

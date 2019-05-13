@@ -15,7 +15,6 @@ public class Player1Movement : MonoBehaviour {
         camTrans;
 
     private float
-        velocity = 0f,
         airForward,
         airRight,
         acceleration = 2.5f,
@@ -49,6 +48,7 @@ public class Player1Movement : MonoBehaviour {
     KeyCode down = KeyCode.S;
     KeyCode jump = KeyCode.Space;
     KeyCode roll = KeyCode.LeftShift;
+    KeyCode sprint = KeyCode.LeftShift;
     String playerH = "P1Horizontal";
     String playerV = "P1Vertical";
     String opponentTag = "Player2";
@@ -56,11 +56,22 @@ public class Player1Movement : MonoBehaviour {
     String opponentSpinArea = "SpinArea2";
 
     float Horizontal, Vertical;
-    public bool isHit, startedAttack;
+    public bool isHit, startedAttack, currentlyAttacking = false;
     public Vector3 oldPosition;
     public float horizontalHitDist = 0.0f, horizontalHitSpeed = 1;
-    public bool isInHitCollider = false, isInSpinCollider, sentAirborne = false;
-    public GameObject p1, p2;
+    public bool isInHitCollider = false, isInSpinCollider, sentAirborne = false, onGroundAfterAirborne = false;
+    public GameObject player, opponent;
+    public float hitStunTimer = 0.0f;
+    public bool invincible = false, isSprinting = false, isInBackFistCollider = false;
+    public float velocity = 0f;
+
+    private AnimatorClipInfo[] clipInfo;
+
+    //public string GetCurrentClipName() {
+    //    clipInfo = anim.GetCurrentAnimatorClipInfo(0);
+    //    float time = clipInfo[0].clip.length;
+    //    return clipInfo[0].clip.name + " " + time;
+    //}
 
     private void Start() {
         controller = GetComponent<CharacterController>();
@@ -72,6 +83,8 @@ public class Player1Movement : MonoBehaviour {
     }
 
     private void Update() {
+
+
         AnimationUpdate();
         if (hasControl) {
             InControl();
@@ -80,20 +93,89 @@ public class Player1Movement : MonoBehaviour {
         }
 
 
-        if (controller.isGrounded) {
+
+        if (sentAirborne && controller.isGrounded) {
+            hitStunTimer = 1.3f;
+            invincible = true;
+            Invoke("DisableInvincibility", 1.7f);
             sentAirborne = false;
+            onGroundAfterAirborne = true;
+            anim.SetBool("onGroundAfterAirborne", true);
+        }
+
+        if (onGroundAfterAirborne) {
+            Invoke("OnGroundAfterAirborne", .75f);
         }
 
         if (sentAirborne) {
-            Physics.IgnoreCollision(p1.GetComponent<CharacterController>(), p2.GetComponent<CharacterController>(), true);
+            hasControl = false;
+            Physics.IgnoreCollision(player.GetComponent<CharacterController>(), opponent.GetComponent<CharacterController>(), true);
         } else {
-            Physics.IgnoreCollision(p1.GetComponent<CharacterController>(), p2.GetComponent<CharacterController>(), false);
+            Physics.IgnoreCollision(player.GetComponent<CharacterController>(), opponent.GetComponent<CharacterController>(), false);
         }
+
+        if (!opponent.GetComponent<CharacterController>().isGrounded) {
+            Physics.IgnoreCollision(player.GetComponent<CharacterController>(), opponent.GetComponent<CharacterController>(), true);
+        } else {
+            Physics.IgnoreCollision(player.GetComponent<CharacterController>(), opponent.GetComponent<CharacterController>(), false);
+        }
+
+        if (!hasControl && !currentlyAttacking) {
+            hitStunTimer -= Time.deltaTime;
+            if (hitStunTimer <= 0 && !sentAirborne) {
+                hasControl = true;
+                hitStunTimer = 0;
+            }
+        }
+
+
+    }
+
+
+    void OnGroundAfterAirborne() {
+        if (CheckForMovementKeys()) {
+            hasControl = true;
+
+            // Rolling
+            if (controller.isGrounded && !isRolling) {
+                canRoll = true;
+            }
+
+            if (canRoll == true) {
+                Roll();
+            }
+
+        } else {
+            canRoll = false;
+        }
+        Invoke("NormalGetUp", .1f);
+        Invoke("OnGroundAfterAirborneFalse", .7f);
+        onGroundAfterAirborne = false;
+    }
+
+    void NormalGetUp() {
+        anim.SetBool("NormalGetUp", true);
+        Invoke("DisableNormalGetUp", .7f);
+    }
+
+    void DisableNormalGetUp() {
+        anim.SetBool("NormalGetUp", false);
+    }
+
+    void OnGroundAfterAirborneFalse() {
+        anim.SetBool("onGroundAfterAirborne", false);
     }
 
     void AnimationUpdate() {
         Horizontal = Input.GetAxis(playerH);
         Vertical = Input.GetAxis(playerV);
+
+        if (isSprinting && CheckForMovementKeys()) {
+            anim.SetBool("isSprinting", true);
+        } else {
+            anim.SetBool("isSprinting", false);
+        }
+
         if (hasControl) {
             anim.SetFloat("InputX", Horizontal);
             anim.SetFloat("InputZ", Vertical);
@@ -121,12 +203,12 @@ public class Player1Movement : MonoBehaviour {
         }
 
         if (hasControl) {
-            if (yVelocity >= 0 && !controller.isGrounded) {
+            if (yVelocity > -2 && !controller.isGrounded) {
                 anim.SetBool("isJumping", true);
             } else {
                 anim.SetBool("isJumping", false);
             }
-            if (yVelocity < 0 && !controller.isGrounded) {
+            if (yVelocity <= -2 && !controller.isGrounded) {
                 anim.SetBool("isFalling", true);
             } else {
                 anim.SetBool("isFalling", false);
@@ -141,11 +223,28 @@ public class Player1Movement : MonoBehaviour {
             anim.SetFloat("yVelocity", yVelocity);
         }
 
+
+
+        if (CheckForMovementKeys()) {
+            anim.SetBool("MovementPressed", true);
+        } else {
+            anim.SetBool("MovementPressed", false);
+        }
+
     }
 
     void InControl() {
         // By default, character cant wall jump. Will be set to true if controller hits wall
         canWallJump = false;
+
+        // Sprinting
+        if (Input.GetKey(sprint) && controller.isGrounded) {
+            isSprinting = true;
+            maxSpeed = 5.5f;
+        } else {
+            isSprinting = false;
+            maxSpeed = 4.0f;
+        }
 
         // Jumping
         if (Input.GetKeyDown(jump)) {
@@ -176,9 +275,9 @@ public class Player1Movement : MonoBehaviour {
             canRoll = true;
         }
 
-        if (Input.GetKeyDown(roll) && canRoll == true) {
-            Roll();
-        }
+        //if (Input.GetKeyDown(roll) && canRoll == true) {
+        //    Roll();
+        //}
 
         if (isRolling == true) {
             WhileRolling();
@@ -208,6 +307,7 @@ public class Player1Movement : MonoBehaviour {
     }
 
     void NotInControl() {
+        velocity = 0;
         canWallJump = false;
         MovementInput();
 
@@ -239,6 +339,8 @@ public class Player1Movement : MonoBehaviour {
             }
         }
 
+        Debug.DrawRay(transform.position, transform.forward, Color.red);
+        Debug.DrawRay(transform.position, localMove, Color.green);
 
 
         // Gravity
@@ -247,16 +349,23 @@ public class Player1Movement : MonoBehaviour {
     }
 
     public void SetHitDist(float distH, float speedFactorH, float yVelocity) {
-        horizontalHitDist = distH;
-        horizontalHitSpeed = speedFactorH;
-        if (isInHitCollider) {
-            this.yVelocity = yVelocity;
+        if (!invincible) {
+            horizontalHitDist = distH;
+            horizontalHitSpeed = speedFactorH;
+            if (isInHitCollider) {
+                this.yVelocity = yVelocity;
+            }
         }
-
     }
 
-    public void SpinHit(Vector3 vec) {
-        if (isInSpinCollider) {
+    public void ResetHitDist() {
+        horizontalHitDist = 0;
+        horizontalHitSpeed = 0;
+    }
+
+    public void GotSpinHitted(Vector3 vec) {
+        if (isInSpinCollider && !invincible) {
+            sentAirborne = true;
             KnockBackAnimation();
             isHit = true;
             hasControl = false;
@@ -265,12 +374,15 @@ public class Player1Movement : MonoBehaviour {
         }
     }
 
-    public void KnockBack(Vector3 vec) {
-        KnockBackAnimation();
-        hasControl = false;
-        isHit = true;
-        opponentForward = vec;
-        oldPosition = transform.position;
+    public void GotKnockBacked(Vector3 vec) {
+        if (!invincible) {
+            KnockBackAnimation();
+            hasControl = false;
+            isHit = true;
+            opponentForward = vec;
+            oldPosition = transform.position;
+        }
+
     }
 
     void KnockBackAnimation() {
@@ -606,6 +718,14 @@ public class Player1Movement : MonoBehaviour {
         // Gravity
         controller.Move(new Vector3(0, yVelocity, 0) * Time.deltaTime);
         Gravity();
+    }
+
+    bool CheckForMovementKeys() {
+        return Input.GetKey(left) || Input.GetKey(right) || Input.GetKey(up) || Input.GetKey(down);
+    }
+
+    void DisableInvincibility() {
+        invincible = false;
     }
 
     void OnTriggerEnter(Collider collision) {
