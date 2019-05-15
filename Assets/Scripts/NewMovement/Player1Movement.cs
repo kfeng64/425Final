@@ -47,7 +47,7 @@ public class Player1Movement : MonoBehaviour {
     KeyCode up = KeyCode.W;
     KeyCode down = KeyCode.S;
     KeyCode jump = KeyCode.Space;
-    KeyCode roll = KeyCode.LeftShift;
+    //KeyCode roll = KeyCode.LeftShift;
     KeyCode sprint = KeyCode.LeftShift;
     String playerH = "P1Horizontal";
     String playerV = "P1Vertical";
@@ -84,7 +84,7 @@ public class Player1Movement : MonoBehaviour {
     }
 
     private void Update() {
-      
+
         Horizontal = Input.GetAxis(playerH);
         Vertical = Input.GetAxis(playerV);
 
@@ -355,7 +355,7 @@ public class Player1Movement : MonoBehaviour {
         Gravity();
     }
 
-    public void SetHitDist(float distH, float speedFactorH, float yVelocity) {
+    public void SetHitDistOpponent(float distH, float speedFactorH, float yVelocity) {
         if (!invincible && isInHitCollider) {
             isHit = true;
             horizontalHitDist = distH;
@@ -363,6 +363,14 @@ public class Player1Movement : MonoBehaviour {
             if (isInHitCollider && !isBlocking) {
                 this.yVelocity = yVelocity;
             }
+        }
+    }
+
+    public void SetHitDistPlayer(float distH, float speedFactorH, float yVelocity) {
+        horizontalHitDist = distH;
+        horizontalHitSpeed = speedFactorH;
+        if (isInHitCollider && !isBlocking) {
+            this.yVelocity = yVelocity;
         }
     }
 

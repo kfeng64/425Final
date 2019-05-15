@@ -2766,8 +2766,8 @@ ModelImporter:
     - serializedVersion: 16
       name: KB_m_Overhand_R
       takeName: KB_m_Overhand_R
-      firstFrame: 0
-      lastFrame: 96
+      firstFrame: 10
+      lastFrame: 81
       wrapMode: 0
       orientationOffsetY: 0
       level: 0

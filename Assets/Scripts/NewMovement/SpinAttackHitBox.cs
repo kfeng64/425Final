@@ -36,7 +36,7 @@ public class SpinAttackHitBox : MonoBehaviour
 
                         if (opponent.isBlocking) {
                             opponent.isHit = true;
-                            opponent.SetHitDist(0.2f, 1, -2);
+                            opponent.SetHitDistOpponent(0.2f, 1, -2);
                             opponent.GotKnockBacked(-opponent.transform.forward);
                         } else {
                             opponent.GotSpinHitted(transform.forward);
