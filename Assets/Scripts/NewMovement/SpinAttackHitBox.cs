@@ -9,6 +9,7 @@ public class SpinAttackHitBox : MonoBehaviour
     SphereCollider col;
     public Player1Combat playerCombat;
     public Player2Movement opponent;
+    string opponentTag = "Player2";
     float delayBetweenHits = 0.0f;
 
     // Start is called before the first frame update
@@ -22,27 +23,36 @@ public class SpinAttackHitBox : MonoBehaviour
     void Update()
     {
 
-        if (Input.GetKeyDown(spin) && playerCombat.canAttack) {
-            EnableHitBox();
-        }
-
-
         if (col.enabled == false) {
             opponent.isInSpinCollider = false;
         } else {
-            if (opponent.isInSpinCollider) {
-                opponent.velocity = 0;
-                if (delayBetweenHits <= 0) {
-                    opponent.GotSpinHitted(transform.forward);
-                    
-                    opponent.sentAirborne = true;
-                    delayBetweenHits = 0.25f;
+            if (!opponent.invincible) {
+                if (opponent.isInSpinCollider) {
+                    opponent.velocity = 0;
+                    if (delayBetweenHits <= 0) {
+
+                        // PLAY HIT SOUND
+
+
+                        if (opponent.isBlocking) {
+                            opponent.isHit = true;
+                            opponent.SetHitDist(0.2f, 1, -2);
+                            opponent.GotKnockBacked(-opponent.transform.forward);
+                        } else {
+                            opponent.GotSpinHitted(transform.forward);
+                            opponent.sentAirborne = true;
+
+                        }
+                        delayBetweenHits = 0.25f;
+
+                    } else {
+                        delayBetweenHits -= Time.deltaTime;
+                    }
                 } else {
-                    delayBetweenHits -= Time.deltaTime;
+                    Invoke("ResetHitDist", 1.0f);
                 }
-            } else {
-                Invoke("ResetHitDist", 1.0f);
             }
+
         }
     }
 
@@ -50,7 +60,7 @@ public class SpinAttackHitBox : MonoBehaviour
        opponent.ResetHitDist();
     }
 
-    void EnableHitBox() {
+    public void EnableHitBox() {
         float attackTime = -1.0f;
         AnimationClip[] clips = anim.runtimeAnimatorController.animationClips;
         foreach (AnimationClip clip in clips) {
@@ -71,7 +81,7 @@ public class SpinAttackHitBox : MonoBehaviour
     }
 
     void OnTriggerEnter(Collider col) {
-        if (col.gameObject.tag == "Player2") {
+        if (col.gameObject.tag == opponentTag) {
             opponent.isInSpinCollider = true;
         }
     }

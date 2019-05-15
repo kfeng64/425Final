@@ -83,10 +83,9 @@ public class Player2Movement : MonoBehaviour {
     }
 
     private void Update() {
+        
         Horizontal = Input.GetAxis(playerH);
         Vertical = Input.GetAxis(playerV);
-
-
 
         AnimationUpdate();
         if (hasControl) {
@@ -356,7 +355,8 @@ public class Player2Movement : MonoBehaviour {
     }
 
     public void SetHitDist(float distH, float speedFactorH, float yVelocity) {
-        if (!invincible) {
+        if (!invincible && isInHitCollider) {
+            isHit = true;
             horizontalHitDist = distH;
             horizontalHitSpeed = speedFactorH;
             if (isInHitCollider && !isBlocking) {

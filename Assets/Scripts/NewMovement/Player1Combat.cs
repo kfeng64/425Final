@@ -6,10 +6,12 @@ public class Player1Combat : MonoBehaviour {
 
     public Player1Movement player;
     public Player2Movement opponent;
+    public SpinAttackHitBox spinHitBox;
     string opponentTag = "Player2";
     KeyCode punch = KeyCode.E;
     KeyCode spin = KeyCode.R;
     KeyCode block = KeyCode.G;
+
     //public GameObject o1, o2;
 
     public bool canAttack, canBackFistOutOfSprint = false, isBlocking = false;
@@ -112,7 +114,11 @@ public class Player1Combat : MonoBehaviour {
 
             if (comboTime > 0) {
                 CancelInvoke("CurrentlyAttacking");
-                CancelInvoke("SetHasControlTrue");
+                //CancelInvoke("SetHasControlTrue");
+            }
+
+            if (opponent.isInHitCollider) {
+                // PLAY HIT SOUND
             }
 
             Invoke("CurrentlyAttacking", attackTime);
@@ -174,18 +180,30 @@ public class Player1Combat : MonoBehaviour {
             }
             
             player.startedAttack = true;
+            if (opponent.isInHitCollider) {
+                if (opponent.isBlocking && combo == 3) {
+                    opponent.SetHitDist(0.2f, 1, -2);
+                }
+                opponent.GotKnockBacked(transform.forward);
+            }
+
+
             if (opponent.isInHitCollider && !opponent.isBlocking) {
                 if (combo == 3) {
                     opponent.sentAirborne = true;
+                    opponent.GotKnockBacked(transform.forward);
                 }
-                opponent.GotKnockBacked(transform.forward);
                 opponent.hitStunTimer = 0.45f;
             }
-            
+
+            if (opponent.isInHitCollider) {
+                // PLAY HIT SOUND
+            }
+
 
             if (comboTime > 0) {
                 CancelInvoke("CurrentlyAttacking");
-                CancelInvoke("SetHasControlTrue");
+                //CancelInvoke("SetHasControlTrue");
             }
             Invoke("CurrentlyAttacking", attackTime);
             Invoke("SetHasControlTrue", attackTime);
@@ -210,19 +228,19 @@ public class Player1Combat : MonoBehaviour {
 
         if (attackTime != -1.0f) {
 
-            canAttack = false;
+            
             Invoke("AttackCoolDown", attackTime);
 
             comboTime = attackTime;
 
             if (comboTime > 0) {
                 anim.Play("SpinAttack");
-                //opponent.SetHitDist(0.0f, 0.0f, 6.0f); 
             }
 
             player.startedAttack = true;
-            //opponent.KnockBack(transform.forward);
             player.oldPosition = transform.position;
+            spinHitBox.EnableHitBox();
+            canAttack = false;
         }
     }
 

@@ -6,6 +6,7 @@ public class Player2Combat : MonoBehaviour {
 
     public Player2Movement player;
     public Player1Movement opponent;
+    public SpinAttackHitBox2 spinHitBox;
     string opponentTag = "Player1";
     KeyCode punch = KeyCode.P;
     KeyCode spin = KeyCode.O;
@@ -19,7 +20,6 @@ public class Player2Combat : MonoBehaviour {
     int combo;
     public Animator anim;
 
-    
 
     // Start is called before the first frame update
     void Start() {
@@ -55,7 +55,7 @@ public class Player2Combat : MonoBehaviour {
             SpinAttack();
         }
 
-        if (Input.GetKey(block)) {
+        if (Input.GetKey(block) && canAttack && player.hitStunTimer <= 0) {
             isBlocking = true;
         } else {
             isBlocking = false;
@@ -114,7 +114,11 @@ public class Player2Combat : MonoBehaviour {
 
             if (comboTime > 0) {
                 CancelInvoke("CurrentlyAttacking");
-                CancelInvoke("SetHasControlTrue");
+                //CancelInvoke("SetHasControlTrue");
+            }
+
+            if (opponent.isInHitCollider) {
+                // HIT SOUND
             }
 
             Invoke("CurrentlyAttacking", attackTime);
@@ -176,18 +180,30 @@ public class Player2Combat : MonoBehaviour {
             }
 
             player.startedAttack = true;
+            if (opponent.isInHitCollider) {
+                if (opponent.isBlocking && combo == 3) {
+                    opponent.SetHitDist(0.2f, 1, -2);
+                }
+                opponent.GotKnockBacked(transform.forward);
+            }
+
             if (opponent.isInHitCollider && !opponent.isBlocking) {
                 if (combo == 3) {
                     opponent.sentAirborne = true;
+                    opponent.GotKnockBacked(transform.forward);
                 }
-                opponent.GotKnockBacked(transform.forward);
+                
                 opponent.hitStunTimer = 0.45f;
+            }
+
+            if (opponent.isInHitCollider) {
+                // HIT SOUND
             }
 
 
             if (comboTime > 0) {
                 CancelInvoke("CurrentlyAttacking");
-                CancelInvoke("SetHasControlTrue");
+                //CancelInvoke("SetHasControlTrue");
             }
             Invoke("CurrentlyAttacking", attackTime);
             Invoke("SetHasControlTrue", attackTime);
@@ -212,19 +228,20 @@ public class Player2Combat : MonoBehaviour {
 
         if (attackTime != -1.0f) {
 
-            canAttack = false;
+
             Invoke("AttackCoolDown", attackTime);
 
             comboTime = attackTime;
 
             if (comboTime > 0) {
                 anim.Play("SpinAttack");
-                //opponent.SetHitDist(0.0f, 0.0f, 6.0f); 
+                
             }
 
             player.startedAttack = true;
-            //opponent.KnockBack(transform.forward);
             player.oldPosition = transform.position;
+            spinHitBox.EnableHitBox();
+            canAttack = false;
         }
     }
 

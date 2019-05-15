@@ -55,6 +55,7 @@ public class Player1Movement : MonoBehaviour {
     String opponentAtkArea = "AttackArea2";
     String opponentSpinArea = "SpinArea2";
 
+
     float Horizontal, Vertical;
     public bool isHit, startedAttack, currentlyAttacking = false;
     public Vector3 oldPosition;
@@ -83,10 +84,9 @@ public class Player1Movement : MonoBehaviour {
     }
 
     private void Update() {
+      
         Horizontal = Input.GetAxis(playerH);
         Vertical = Input.GetAxis(playerV);
-
-
 
         AnimationUpdate();
         if (hasControl) {
@@ -356,7 +356,8 @@ public class Player1Movement : MonoBehaviour {
     }
 
     public void SetHitDist(float distH, float speedFactorH, float yVelocity) {
-        if (!invincible) {
+        if (!invincible && isInHitCollider) {
+            isHit = true;
             horizontalHitDist = distH;
             horizontalHitSpeed = speedFactorH;
             if (isInHitCollider && !isBlocking) {
