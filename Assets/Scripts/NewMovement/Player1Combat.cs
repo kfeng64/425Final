@@ -23,6 +23,7 @@ public class Player1Combat : MonoBehaviour {
     public AudioSource attackSound;
     public AudioSource hitSound;
     public AudioSource hitSound2;
+    public AudioSource blockSound;
 
 
     // Start is called before the first frame update
@@ -45,9 +46,14 @@ public class Player1Combat : MonoBehaviour {
             canAttack = false;
         }
 
-        if (player.sentAirborne) {
+        if (player.hasControl && comboTime <= 0) {
+            canAttack = true;
+        }
+
+        if (player.sentAirborne || anim.GetBool("isJumping") || anim.GetBool("isFalling")) {
             canAttack = false;
         }
+
 
         if (Input.GetKeyDown(punch) && player.isSprinting && canAttack) {
             BackFist();
@@ -125,7 +131,7 @@ public class Player1Combat : MonoBehaviour {
 
         if (attackTime != -1.0f) {
             canAttack = false;
-            Invoke("AttackCoolDown", attackTime / 3.5f);
+            Invoke("AttackCoolDown", attackTime / 5.0f);
 
             comboTime = attackTime;
 
@@ -175,7 +181,12 @@ public class Player1Combat : MonoBehaviour {
 
             if (opponent.isInHitCollider) {
                 // PLAY HIT SOUND
-                if (!opponent.invincible)
+                if (opponent.isBlocking) {
+                    hitSound.Play();
+                    blockSound.Play();
+                }
+                    
+                else if (!opponent.invincible)
                     hitSound2.Play();
                 else
                     attackSound.Play();
@@ -268,7 +279,10 @@ public class Player1Combat : MonoBehaviour {
 
             if (opponent.isInHitCollider) {
                 // PLAY HIT SOUND
-                if (!opponent.invincible)
+                if (opponent.isBlocking) {
+                    hitSound.Play();
+                    blockSound.Play();
+                } else if (!opponent.invincible)
                     hitSound.Play();
                 else
                     attackSound.Play();
@@ -350,16 +364,6 @@ public class Player1Combat : MonoBehaviour {
             }
 
             player.startedAttack = true;
-
-            if (opponent.isInHitCollider) {
-                // PLAY HIT SOUND
-                if (!opponent.invincible)
-                    hitSound.Play();
-                else
-                    attackSound.Play();
-            } else {
-                attackSound.Play();
-            }
 
             Invoke("CurrentlyAttacking", attackTime);
             Invoke("SetHasControlTrue", attackTime);

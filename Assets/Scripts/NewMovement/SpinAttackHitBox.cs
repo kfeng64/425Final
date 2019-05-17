@@ -5,7 +5,6 @@ using UnityEngine;
 public class SpinAttackHitBox : MonoBehaviour
 {
     public Animator anim;
-    KeyCode spin = KeyCode.R;
     SphereCollider col;
     public Player1Combat playerCombat;
     public Player2Movement opponent;
@@ -32,8 +31,12 @@ public class SpinAttackHitBox : MonoBehaviour
                     if (delayBetweenHits <= 0) {
 
                         // PLAY HIT SOUND
-                        if (!opponent.invincible)
+                        if (!opponent.invincible && !opponent.isBlocking)
                             playerCombat.hitSound.Play();
+                        if (!opponent.invincible && opponent.isBlocking) {
+                            playerCombat.hitSound.Play();
+                            playerCombat.blockSound.Play();
+                        }
 
                         if (opponent.isBlocking) {
                             opponent.isHit = true;

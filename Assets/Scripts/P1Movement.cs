@@ -13,7 +13,6 @@ public class P1Movement : MonoBehaviour
 	public int numJumps;
     public float distToGround;
 
-    float fallTimer = 0f;
     public float fallDelay = 0.2f;
 
     // Start is called before the first frame update

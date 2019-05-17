@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class Player2Movement : MonoBehaviour {
     public float
@@ -42,18 +43,17 @@ public class Player2Movement : MonoBehaviour {
     public Animator anim;
     private Vector3 originalPos, localMove, colNormal, airMovement;
 
-    KeyCode left = KeyCode.Keypad4;
-    KeyCode right = KeyCode.Keypad6;
-    KeyCode up = KeyCode.Keypad8;
-    KeyCode down = KeyCode.Keypad5;
-    KeyCode jump = KeyCode.Keypad0;
+    KeyCode left = KeyCode.LeftArrow;
+    KeyCode right = KeyCode.RightArrow;
+    KeyCode up = KeyCode.UpArrow;
+    KeyCode down = KeyCode.DownArrow;
+    KeyCode jump = KeyCode.Period;
     //KeyCode roll = KeyCode.RightShift;
-    KeyCode sprint = KeyCode.KeypadPlus;
+    KeyCode sprint = KeyCode.Comma;
     String playerH = "P2Horizontal";
     String playerV = "P2Vertical";
-    String opponentTag = "Player1";
     String opponentAtkArea = "AttackArea1";
-    String opponentSpinArea = "SpinArea1";
+
 
     float Horizontal, Vertical;
     public bool isHit, startedAttack, currentlyAttacking = false;
@@ -65,6 +65,8 @@ public class Player2Movement : MonoBehaviour {
     public bool invincible = false, isSprinting = false, isInBackFistCollider = false;
     public float velocity = 0f;
     public int health = 100;
+    public AudioSource jumpSound;
+    public Slider healthBar;
 
     private AnimatorClipInfo[] clipInfo;
 
@@ -88,6 +90,8 @@ public class Player2Movement : MonoBehaviour {
         Horizontal = Input.GetAxis(playerH);
         Vertical = Input.GetAxis(playerV);
 
+        healthBar.value = health;
+
         AnimationUpdate();
         if (hasControl) {
             InControl();
@@ -100,7 +104,7 @@ public class Player2Movement : MonoBehaviour {
         if (sentAirborne && controller.isGrounded) {
             hitStunTimer = 1.3f;
             invincible = true;
-            Invoke("DisableInvincibility", 1.7f);
+            Invoke("DisableInvincibility", 1.5f);
             sentAirborne = false;
             onGroundAfterAirborne = true;
             anim.SetBool("onGroundAfterAirborne", true);
@@ -250,6 +254,7 @@ public class Player2Movement : MonoBehaviour {
 
         // Jumping
         if (Input.GetKeyDown(jump)) {
+
             Jump();
         }
 
@@ -268,7 +273,7 @@ public class Player2Movement : MonoBehaviour {
         }
 
         // Restart if controller falls out of map
-        if (transform.position.y <= -3) {
+        if (transform.position.y <= -5) {
             Restart();
         }
 
@@ -319,7 +324,7 @@ public class Player2Movement : MonoBehaviour {
             MoveCharAir();
         }
 
-        if (transform.position.y <= -3) {
+        if (transform.position.y <= -5) {
             Restart();
         }
 
@@ -566,6 +571,7 @@ public class Player2Movement : MonoBehaviour {
     void WallJump() {
         if (Input.GetKeyDown(jump)) {
             if (colNormal.normalized.y < 0.01f && colNormal.normalized.y > -0.01f) {
+                jumpSound.Play();
                 startedWallJump = true;
                 transform.forward = colNormal.normalized;
                 yVelocity = wallJumpForce;
@@ -582,13 +588,16 @@ public class Player2Movement : MonoBehaviour {
     void Jump() {
 
         if (controller.isGrounded) {
+            jumpSound.Play();
             anim.SetBool("isJumping", true);
             numJumps = 2;
             yVelocity = jumpForce;
             startedJump = true;
             numJumps--;
+
         } else {
             if (numJumps > 0) {
+                jumpSound.Play();
                 anim.SetBool("isJumping", true);
                 if (localMove != Vector3.zero && !startedWallJump) {
                     transform.forward = AngledDoubleJump();
@@ -597,6 +606,7 @@ public class Player2Movement : MonoBehaviour {
                 startedJump = true;
                 yVelocity = jumpForce;
                 numJumps--;
+
             }
         }
     }

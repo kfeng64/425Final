@@ -6,10 +6,10 @@ public class BackFistHitBox : MonoBehaviour {
     public Animator anim;
     KeyCode hit = KeyCode.E;
     KeyCode sprint = KeyCode.LeftShift;
+    string opponentTag = "Player2";
     BoxCollider col;
     public Player1Combat playerCombat;
     public Player2Movement opponent;
-    float delayBetweenHits = 0.0f;
 
     // Start is called before the first frame update
     void Start() {
@@ -31,7 +31,7 @@ public class BackFistHitBox : MonoBehaviour {
             if (opponent.isInBackFistCollider) {
                 // PLAY HIT SOUND
                 if (!opponent.invincible)
-                    playerCombat.hitSound.Play();
+                    playerCombat.hitSound2.Play();
 
                 if (opponent.isBlocking) {
                     opponent.isHit = true;
@@ -63,8 +63,10 @@ public class BackFistHitBox : MonoBehaviour {
 
     void EnableHitBox() {
         // PLAY HIT SOUND
-        if (!opponent.invincible && playerCombat.canAttack)
+        if (!opponent.invincible && playerCombat.canAttack && !opponent.isBlocking)
             playerCombat.attackSound.Play();
+        if (!opponent.invincible && playerCombat.canAttack && opponent.isBlocking)
+            playerCombat.blockSound.Play();
 
         float attackTime = -1.0f;
         AnimationClip[] clips = anim.runtimeAnimatorController.animationClips;
@@ -84,7 +86,7 @@ public class BackFistHitBox : MonoBehaviour {
     }
 
     void OnTriggerEnter(Collider col) {
-        if (col.gameObject.tag == "Player2") {
+        if (col.gameObject.tag == opponentTag) {
             opponent.isInBackFistCollider = true;
         }
     }

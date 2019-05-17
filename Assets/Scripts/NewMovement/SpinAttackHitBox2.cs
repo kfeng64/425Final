@@ -4,7 +4,6 @@ using UnityEngine;
 
 public class SpinAttackHitBox2 : MonoBehaviour {
     public Animator anim;
-    KeyCode spin = KeyCode.O;
     SphereCollider col;
     public Player2Combat playerCombat;
     public Player1Movement opponent;
@@ -20,7 +19,6 @@ public class SpinAttackHitBox2 : MonoBehaviour {
     // Update is called once per frame
     void Update() {
 
-
         if (col.enabled == false) {
             opponent.isInSpinCollider = false;
         } else {
@@ -30,6 +28,12 @@ public class SpinAttackHitBox2 : MonoBehaviour {
                     if (delayBetweenHits <= 0) {
 
                         // PLAY HIT SOUND
+                        if (!opponent.invincible && !opponent.isBlocking)
+                            playerCombat.hitSound.Play();
+                        if (!opponent.invincible && opponent.isBlocking) {
+                            playerCombat.hitSound.Play();
+                            playerCombat.blockSound.Play();
+                        }
 
                         if (opponent.isBlocking) {
                             opponent.isHit = true;
@@ -38,7 +42,7 @@ public class SpinAttackHitBox2 : MonoBehaviour {
                         } else {
                             opponent.GotSpinHitted(transform.forward);
                             opponent.sentAirborne = true;
-                            
+                            DealDamage(5);
                         }
                         delayBetweenHits = 0.25f;
 
@@ -46,12 +50,17 @@ public class SpinAttackHitBox2 : MonoBehaviour {
                         delayBetweenHits -= Time.deltaTime;
                     }
                 } else {
+
                     Invoke("ResetHitDist", 1.0f);
                 }
             }
-            
-            
+
         }
+    }
+
+    void DealDamage(int damage) {
+        opponent.health -= damage;
+        print(opponent.health);
     }
 
     void ResetHitDist() {

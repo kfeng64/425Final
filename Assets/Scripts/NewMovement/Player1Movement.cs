@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class Player1Movement : MonoBehaviour {
     public float
@@ -51,9 +52,7 @@ public class Player1Movement : MonoBehaviour {
     KeyCode sprint = KeyCode.LeftShift;
     String playerH = "P1Horizontal";
     String playerV = "P1Vertical";
-    String opponentTag = "Player2";
     String opponentAtkArea = "AttackArea2";
-    String opponentSpinArea = "SpinArea2";
 
 
     float Horizontal, Vertical;
@@ -66,6 +65,8 @@ public class Player1Movement : MonoBehaviour {
     public bool invincible = false, isSprinting = false, isInBackFistCollider = false;
     public float velocity = 0f;
     public int health = 100;
+    public AudioSource jumpSound;
+    public Slider healthBar;
 
     private AnimatorClipInfo[] clipInfo;
 
@@ -89,6 +90,9 @@ public class Player1Movement : MonoBehaviour {
         Horizontal = Input.GetAxis(playerH);
         Vertical = Input.GetAxis(playerV);
 
+        healthBar.value = health;
+
+
         AnimationUpdate();
         if (hasControl) {
             InControl();
@@ -101,7 +105,7 @@ public class Player1Movement : MonoBehaviour {
         if (sentAirborne && controller.isGrounded) {
             hitStunTimer = 1.3f;
             invincible = true;
-            Invoke("DisableInvincibility", 1.7f);
+            Invoke("DisableInvincibility", 1.5f);
             sentAirborne = false;
             onGroundAfterAirborne = true;
             anim.SetBool("onGroundAfterAirborne", true);
@@ -251,6 +255,7 @@ public class Player1Movement : MonoBehaviour {
 
         // Jumping
         if (Input.GetKeyDown(jump)) {
+            
             Jump();
         }
 
@@ -269,7 +274,7 @@ public class Player1Movement : MonoBehaviour {
         }
 
         // Restart if controller falls out of map
-        if (transform.position.y <= -3) {
+        if (transform.position.y <= -5) {
             Restart();
         }
 
@@ -320,7 +325,7 @@ public class Player1Movement : MonoBehaviour {
             MoveCharAir();
         }
 
-        if (transform.position.y <= -3) {
+        if (transform.position.y <= -5) {
             Restart();
         }
 
@@ -567,6 +572,7 @@ public class Player1Movement : MonoBehaviour {
     void WallJump() {
         if (Input.GetKeyDown(jump)) {
             if (colNormal.normalized.y < 0.01f && colNormal.normalized.y > -0.01f) {
+                jumpSound.Play();
                 startedWallJump = true;
                 transform.forward = colNormal.normalized;
                 yVelocity = wallJumpForce;
@@ -583,13 +589,16 @@ public class Player1Movement : MonoBehaviour {
     void Jump() {
 
         if (controller.isGrounded) {
+            jumpSound.Play();
             anim.SetBool("isJumping", true);
             numJumps = 2;
             yVelocity = jumpForce;
             startedJump = true;
             numJumps--;
+            
         } else {
             if (numJumps > 0) {
+                jumpSound.Play();
                 anim.SetBool("isJumping", true);
                 if (localMove != Vector3.zero && !startedWallJump) {
                     transform.forward = AngledDoubleJump();
@@ -598,6 +607,7 @@ public class Player1Movement : MonoBehaviour {
                 startedJump = true;
                 yVelocity = jumpForce;
                 numJumps--;
+                
             }
         }
     }
