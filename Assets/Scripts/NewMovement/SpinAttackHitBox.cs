@@ -63,7 +63,7 @@ public class SpinAttackHitBox : MonoBehaviour
 
     void DealDamage(int damage) {
         opponent.health -= damage;
-        print(opponent.health);
+        //print(opponent.health);
     }
 
     void ResetHitDist() {

@@ -54,7 +54,7 @@ public class BackFistHitBox : MonoBehaviour {
 
     void DealDamage(int damage) {
         opponent.health -= damage;
-        print(opponent.health);
+        //print(opponent.health);
     }
 
     void ResetHitDist() {

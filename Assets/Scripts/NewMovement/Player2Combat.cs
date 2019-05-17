@@ -371,7 +371,7 @@ public class Player2Combat : MonoBehaviour {
 
     void DealDamage(int damage) {
         opponent.health -= damage;
-        print(opponent.health);
+        //print(opponent.health);
     }
 
     void SetHasControlTrue() {

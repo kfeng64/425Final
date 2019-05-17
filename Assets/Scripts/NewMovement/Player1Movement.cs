@@ -92,6 +92,11 @@ public class Player1Movement : MonoBehaviour {
 
         healthBar.value = health;
 
+        if (health <= 0) {
+            hasControl = false;
+            invincible = true;
+            anim.Play("Dead2");
+        }
 
         AnimationUpdate();
         if (hasControl) {
