@@ -32,7 +32,8 @@ public class SpinAttackHitBox : MonoBehaviour
                     if (delayBetweenHits <= 0) {
 
                         // PLAY HIT SOUND
-
+                        if (!opponent.invincible)
+                            playerCombat.hitSound.Play();
 
                         if (opponent.isBlocking) {
                             opponent.isHit = true;
@@ -41,7 +42,7 @@ public class SpinAttackHitBox : MonoBehaviour
                         } else {
                             opponent.GotSpinHitted(transform.forward);
                             opponent.sentAirborne = true;
-
+                            DealDamage(5);
                         }
                         delayBetweenHits = 0.25f;
 
@@ -49,11 +50,17 @@ public class SpinAttackHitBox : MonoBehaviour
                         delayBetweenHits -= Time.deltaTime;
                     }
                 } else {
+
                     Invoke("ResetHitDist", 1.0f);
                 }
             }
 
         }
+    }
+
+    void DealDamage(int damage) {
+        opponent.health -= damage;
+        print(opponent.health);
     }
 
     void ResetHitDist() {

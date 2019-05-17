@@ -65,6 +65,7 @@ public class Player1Movement : MonoBehaviour {
     public float hitStunTimer = 0.0f;
     public bool invincible = false, isSprinting = false, isInBackFistCollider = false;
     public float velocity = 0f;
+    public int health = 100;
 
     private AnimatorClipInfo[] clipInfo;
 
@@ -268,7 +269,7 @@ public class Player1Movement : MonoBehaviour {
         }
 
         // Restart if controller falls out of map
-        if (transform.position.y <= -1.3) {
+        if (transform.position.y <= -3) {
             Restart();
         }
 
@@ -319,7 +320,7 @@ public class Player1Movement : MonoBehaviour {
             MoveCharAir();
         }
 
-        if (transform.position.y <= -1.3) {
+        if (transform.position.y <= -3) {
             Restart();
         }
 

@@ -15,12 +15,15 @@ public class Player1Combat : MonoBehaviour {
 
     //public GameObject o1, o2;
 
-    public bool canAttack, canBackFistOutOfSprint = false, isBlocking = false;
+    public bool canAttack, isBlocking = false;
     bool isComboing;
     float comboTime;
     int combo;
     public Animator anim;
-    
+    public AudioSource attackSound;
+    public AudioSource hitSound;
+    public AudioSource hitSound2;
+
 
     // Start is called before the first frame update
     void Start() {
@@ -38,14 +41,6 @@ public class Player1Combat : MonoBehaviour {
             player.hasControl = true;
         }
 
-        if (player.isSprinting) {
-            canAttack = false;
-            canBackFistOutOfSprint = true;
-        } else {
-            canAttack = true;
-            canBackFistOutOfSprint = false;
-        }
-
         if (player.hitStunTimer > 0) {
             canAttack = false;
         }
@@ -54,11 +49,11 @@ public class Player1Combat : MonoBehaviour {
             canAttack = false;
         }
 
-        if (Input.GetKeyDown(punch) && canBackFistOutOfSprint) {
+        if (Input.GetKeyDown(punch) && player.isSprinting && canAttack) {
             BackFist();
         }
 
-        if (Input.GetKeyDown(punch) && canAttack) {
+        if (Input.GetKeyDown(punch) && !player.isSprinting && canAttack) {
             Punch();
         }
 
@@ -98,6 +93,8 @@ public class Player1Combat : MonoBehaviour {
     }
 
     void StrongHit() {
+        
+
         player.hasControl = false;
         player.currentlyAttacking = true;
         isComboing = true;
@@ -173,10 +170,17 @@ public class Player1Combat : MonoBehaviour {
                     //Invoke("ResetHitDist", 1.0f);
                 }
                 opponent.hitStunTimer = 0.45f;
+                DealDamage(5);
             }
 
             if (opponent.isInHitCollider) {
                 // PLAY HIT SOUND
+                if (!opponent.invincible)
+                    hitSound2.Play();
+                else
+                    attackSound.Play();
+            } else {
+                attackSound.Play();
             }
 
 
@@ -190,51 +194,7 @@ public class Player1Combat : MonoBehaviour {
         }
     }
 
-    void BackFist() {
-        player.hasControl = false;
-        player.currentlyAttacking = true;
-        isComboing = true;
-        float attackTime = -1.0f;
-        combo++;
-
-        AnimationClip[] clips = anim.runtimeAnimatorController.animationClips;
-        foreach (AnimationClip clip in clips) {
-            switch (clip.name) {
-                case "KB_m_BackfistRoundFar_R":
-                    attackTime = clip.length / 3;
-                    break;
-            }
-        }
-
-        if (attackTime != -1.0f) {
-            canAttack = false;
-            Invoke("AttackCoolDown", attackTime);
-
-            comboTime = attackTime;
-
-            if (comboTime > 0) {
-                anim.Play("KB_m_BackfistRoundFar_R");
-                player.SetHitDistPlayer(1.7f, 10, -2);
-                opponent.SetHitDistOpponent(3.0f, 5, -2);
-            }
-
-            player.startedAttack = true;
-
-            if (comboTime > 0) {
-                CancelInvoke("CurrentlyAttacking");
-                CancelInvoke("SetHasControlTrue");
-            }
-
-            if (opponent.isInHitCollider) {
-                // PLAY HIT SOUND
-            }
-
-            Invoke("CurrentlyAttacking", attackTime);
-            Invoke("SetHasControlTrue", attackTime);
-            player.oldPosition = transform.position;
-            //Invoke("ResetHitDist", 1.0f);
-        }
-    }
+    
 
     void Punch() {
         player.hasControl = false;
@@ -302,11 +262,19 @@ public class Player1Combat : MonoBehaviour {
                     opponent.sentAirborne = true;
                     opponent.GotKnockBacked(transform.forward);
                 }
+                DealDamage(5);
                 opponent.hitStunTimer = 0.45f;
             }
 
             if (opponent.isInHitCollider) {
                 // PLAY HIT SOUND
+                if (!opponent.invincible)
+                    hitSound.Play();
+                else
+                    attackSound.Play();
+            } else {
+                attackSound.Play();
+
             }
 
 
@@ -351,6 +319,58 @@ public class Player1Combat : MonoBehaviour {
             spinHitBox.EnableHitBox();
             canAttack = false;
         }
+    }
+
+    void BackFist() {
+        player.hasControl = false;
+        player.currentlyAttacking = true;
+        isComboing = true;
+        float attackTime = -1.0f;
+        combo++;
+
+        AnimationClip[] clips = anim.runtimeAnimatorController.animationClips;
+        foreach (AnimationClip clip in clips) {
+            switch (clip.name) {
+                case "KB_m_BackfistRoundFar_R":
+                    attackTime = clip.length / 2;
+                    break;
+            }
+        }
+
+        if (attackTime != -1.0f) {
+            canAttack = false;
+            Invoke("AttackCoolDown", attackTime);
+
+            comboTime = attackTime;
+
+            if (comboTime > 0) {
+                anim.Play("KB_m_BackfistRoundFar_R");
+                player.SetHitDistPlayer(1.7f, 10, -2);
+                opponent.SetHitDistOpponent(3.0f, 5, -2);
+            }
+
+            player.startedAttack = true;
+
+            if (opponent.isInHitCollider) {
+                // PLAY HIT SOUND
+                if (!opponent.invincible)
+                    hitSound.Play();
+                else
+                    attackSound.Play();
+            } else {
+                attackSound.Play();
+            }
+
+            Invoke("CurrentlyAttacking", attackTime);
+            Invoke("SetHasControlTrue", attackTime);
+            player.oldPosition = transform.position;
+            //Invoke("ResetHitDist", 1.0f);
+        }
+    }
+
+    void DealDamage(int damage) {
+        opponent.health -= damage;
+        print(opponent.health);
     }
 
     void SetHasControlTrue() {
