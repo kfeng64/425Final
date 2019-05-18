@@ -12,6 +12,7 @@ public class Player1Combat : MonoBehaviour {
     KeyCode strongHit = KeyCode.Q;
     KeyCode spin = KeyCode.R;
     KeyCode block = KeyCode.C;
+	KeyCode grab = KeyCode.G;
 
     //public GameObject o1, o2;
 
@@ -25,6 +26,7 @@ public class Player1Combat : MonoBehaviour {
     public AudioSource hitSound2;
     public AudioSource blockSound;
 
+	public bool isGrabbing;
 
     // Start is called before the first frame update
     void Start() {
@@ -32,6 +34,7 @@ public class Player1Combat : MonoBehaviour {
         isComboing = false;
         comboTime = 0.0f;
         combo = 0;
+		isGrabbing = false;
         
     }
 
@@ -88,9 +91,53 @@ public class Player1Combat : MonoBehaviour {
             combo = 0;
         }
 
+		if (Input.GetKeyDown(grab) && canAttack) {
+			Grab();
+		}
+
+
     }
 
-    void Block() {
+	void Grab() {
+
+		player.hasControl = false;
+		float attackTime = -1.0f;
+
+
+
+
+
+		AnimationClip[] clips = anim.runtimeAnimatorController.animationClips;
+		foreach (AnimationClip clip in clips) {
+			switch (clip.name) {
+				case "Grabbing":
+					attackTime = clip.length;
+					break;
+				case "KB_m_Jab_R":
+					attackTime += clip.length;
+					break;
+			}
+		}
+
+		if (attackTime != -1.0f) {
+
+
+			Invoke("AttackCoolDown", attackTime);
+
+			comboTime = attackTime;
+
+			if (comboTime > 0) {
+				anim.Play("Grabbing");
+			}
+
+			player.startedAttack = true;
+			//player.oldPosition = transform.position;
+			canAttack = false;
+		}
+	}
+
+
+	void Block() {
         if (isBlocking) {
             player.hasControl = false;
             
