@@ -62,6 +62,8 @@ public class BackFistHitBox2 : MonoBehaviour {
     }
 
     void EnableHitBox() {
+        anim = playerCombat.anim;
+
         // PLAY HIT SOUND
         if (!opponent.invincible && playerCombat.canAttack && !opponent.isBlocking)
             playerCombat.attackSound.Play();

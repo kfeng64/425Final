@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class BackFistHitBox : MonoBehaviour {
-    public Animator anim;
+    Animator anim;
     KeyCode hit = KeyCode.E;
     KeyCode sprint = KeyCode.LeftShift;
     string opponentTag = "Player2";
@@ -62,6 +62,8 @@ public class BackFistHitBox : MonoBehaviour {
     }
 
     void EnableHitBox() {
+        anim = playerCombat.anim;
+
         // PLAY HIT SOUND
         if (!opponent.invincible && playerCombat.canAttack && !opponent.isBlocking)
             playerCombat.attackSound.Play();

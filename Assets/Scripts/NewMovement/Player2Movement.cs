@@ -67,6 +67,8 @@ public class Player2Movement : MonoBehaviour {
     public int health = 100;
     public AudioSource jumpSound;
     public Slider healthBar;
+    GameObject spongebob, shrek, shaggy, sasuke;
+    public bool spongebobPicked, shrekPicked, shaggyPicked, sasukePicked;
 
     private AnimatorClipInfo[] clipInfo;
 
@@ -80,9 +82,42 @@ public class Player2Movement : MonoBehaviour {
         controller = GetComponent<CharacterController>();
         originalPos = transform.position;
         colNormal = Vector3.zero;
-        anim = GetComponent<Animator>();
         hasControl = true;
 
+        spongebob = transform.GetChild(0).gameObject;
+        shrek = transform.GetChild(1).gameObject;
+        shaggy = transform.GetChild(2).gameObject;
+        sasuke = transform.GetChild(3).gameObject;
+
+        GameObject characterPicked = null;
+        shrekPicked = true;
+
+        if (spongebobPicked) {
+            characterPicked = spongebob;
+            shrek.SetActive(false);
+            shaggy.SetActive(false);
+            sasuke.SetActive(false);
+        }
+        if (shrekPicked) {
+            characterPicked = shrek;
+            spongebob.SetActive(false);
+            shaggy.SetActive(false);
+            sasuke.SetActive(false);
+        }
+        if (shaggyPicked) {
+            characterPicked = shaggy;
+            shrek.SetActive(false);
+            spongebob.SetActive(false);
+            sasuke.SetActive(false);
+        }
+        if (sasukePicked) {
+            characterPicked = sasuke;
+            shrek.SetActive(false);
+            shaggy.SetActive(false);
+            spongebob.SetActive(false);
+        }
+
+        anim = characterPicked.GetComponent<Animator>();
     }
 
     private void Update() {
