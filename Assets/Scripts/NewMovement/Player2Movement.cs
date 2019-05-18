@@ -68,7 +68,7 @@ public class Player2Movement : MonoBehaviour {
     public AudioSource jumpSound;
     public Slider healthBar;
     GameObject spongebob, shrek, shaggy, sasuke;
-    bool spongebobPicked, shrekPicked, shaggyPicked, sasukePicked;
+    public bool spongebobPicked, shrekPicked, shaggyPicked, sasukePicked;
 
     private AnimatorClipInfo[] clipInfo;
 
