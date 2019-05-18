@@ -24,6 +24,8 @@ public class Player1Combat : MonoBehaviour {
     public AudioSource hitSound;
     public AudioSource hitSound2;
     public AudioSource blockSound;
+    GameObject spongebob, shrek, shaggy, sasuke;
+    bool spongebobPicked, shrekPicked, shaggyPicked, sasukePicked;
 
 
     // Start is called before the first frame update
@@ -32,7 +34,41 @@ public class Player1Combat : MonoBehaviour {
         isComboing = false;
         comboTime = 0.0f;
         combo = 0;
-        
+
+        spongebob = transform.GetChild(0).gameObject;
+        shrek = transform.GetChild(1).gameObject;
+        shaggy = transform.GetChild(2).gameObject;
+        sasuke = transform.GetChild(3).gameObject;
+
+        GameObject characterPicked = null;
+        spongebobPicked = true;
+
+        if (spongebobPicked) {
+            characterPicked = spongebob;
+            shrek.SetActive(false);
+            shaggy.SetActive(false);
+            sasuke.SetActive(false);
+        }
+        if (shrekPicked) {
+            characterPicked = shrek;
+            spongebob.SetActive(false);
+            shaggy.SetActive(false);
+            sasuke.SetActive(false);
+        }
+        if (shaggyPicked) {
+            characterPicked = shaggy;
+            shrek.SetActive(false);
+            spongebob.SetActive(false);
+            sasuke.SetActive(false);
+        }
+        if (sasukePicked) {
+            characterPicked = sasuke;
+            shrek.SetActive(false);
+            shaggy.SetActive(false);
+            spongebob.SetActive(false);
+        }
+
+        anim = characterPicked.GetComponent<Animator>();
     }
 
     // Update is called once per frame

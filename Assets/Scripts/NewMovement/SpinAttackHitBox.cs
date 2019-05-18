@@ -71,6 +71,8 @@ public class SpinAttackHitBox : MonoBehaviour
     }
 
     public void EnableHitBox() {
+        anim = playerCombat.anim;
+
         float attackTime = -1.0f;
         AnimationClip[] clips = anim.runtimeAnimatorController.animationClips;
         foreach (AnimationClip clip in clips) {
