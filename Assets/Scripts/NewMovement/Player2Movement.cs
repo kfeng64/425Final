@@ -184,8 +184,6 @@ public class Player2Movement : MonoBehaviour {
 
 	public void gotGrabbed() {
 
-		Debug.Log("GOT GRABBED");
-
 		Invoke("grabAnim", .1f);
 	}
 
@@ -198,6 +196,15 @@ public class Player2Movement : MonoBehaviour {
 
 			anim.Play("Grabbed");
 		}
+	}
+
+	public void hitByProjectile() {
+		hasControl = false;
+		
+		hitStunTimer = .9f;
+
+		anim.Play("GroundHitStun");
+		health -= 5;
 	}
 
 
@@ -826,7 +833,16 @@ public class Player2Movement : MonoBehaviour {
         if (collision.gameObject.tag == opponentAtkArea) {
             isInHitCollider = true;
         }
-    }
+		if (collision.gameObject.CompareTag("Projectile")) {
+			if (collision.GetComponent<ProjectileDamage>().parent != gameObject) {
+				hitByProjectile();
+				collision.gameObject.GetComponent<Rigidbody>().isKinematic = true;
+				collision.transform.SetParent(transform);
+				collision.GetComponent<Collider>().enabled = false;
+			}
+			
+		}
+	}
 
 
     void OnTriggerExit(Collider collision) {

@@ -65,6 +65,8 @@ public class P1Movement : MonoBehaviour
         if (other.CompareTag("Ground")) {
             isGrounded = true;
         }
+
+
     }
 
     private void OnTriggerExit(Collider other) {

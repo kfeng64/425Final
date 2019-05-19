@@ -199,6 +199,15 @@ public class Player1Movement : MonoBehaviour {
 		}
 	}
 
+	public void hitByProjectile() {
+		hasControl = false;
+
+		hitStunTimer = .9f;
+
+		anim.Play("GroundHitStun");
+		health -= 5;
+	}
+
 
 	void OnGroundAfterAirborne() {
         if (CheckForMovementKeys()) {
@@ -825,7 +834,16 @@ public class Player1Movement : MonoBehaviour {
         if (collision.gameObject.tag == opponentAtkArea) {
             isInHitCollider = true;
         }
-    }
+		if (collision.gameObject.CompareTag("Projectile")) {
+			if (collision.GetComponent<ProjectileDamage>().parent != gameObject) {
+				hitByProjectile();
+				collision.gameObject.GetComponent<Rigidbody>().isKinematic = true;
+				collision.transform.SetParent(transform);
+				collision.GetComponent<Collider>().enabled = false;
+			}
+
+		}
+	}
 
 
     void OnTriggerExit(Collider collision) {
