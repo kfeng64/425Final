@@ -12,10 +12,11 @@ public class Player2Combat : MonoBehaviour {
     KeyCode strongHit = KeyCode.Semicolon;
     KeyCode spin = KeyCode.L;
     KeyCode block = KeyCode.Slash;
+	KeyCode grab = KeyCode.K;
 
-    //public GameObject o1, o2;
+	//public GameObject o1, o2;
 
-    public bool canAttack, isBlocking = false;
+	public bool canAttack, isBlocking = false;
     bool isComboing;
     float comboTime;
     int combo;
@@ -27,9 +28,11 @@ public class Player2Combat : MonoBehaviour {
     GameObject spongebob, shrek, shaggy, sasuke;
     bool spongebobPicked, shrekPicked, shaggyPicked, sasukePicked;
 
+	public bool isGrabbing;
+	public GrabHitBox2 grabHitBox;
 
-    // Start is called before the first frame update
-    void Start() {
+	// Start is called before the first frame update
+	void Start() {
         canAttack = true;
         isComboing = false;
         comboTime = 0.0f;
@@ -68,8 +71,8 @@ public class Player2Combat : MonoBehaviour {
             spongebob.SetActive(false);
         }
 
-        anim = characterPicked.GetComponent<Animator>();
-    }
+		anim.avatar = characterPicked.GetComponent<Animator>().avatar;
+	}
 
     // Update is called once per frame
     void Update() {
@@ -123,9 +126,52 @@ public class Player2Combat : MonoBehaviour {
             combo = 0;
         }
 
-    }
+		if (Input.GetKeyDown(grab) && canAttack) {
+			Grab();
+		}
 
-    void Block() {
+	}
+
+	void Grab() {
+
+		player.hasControl = false;
+		float attackTime = -1.0f;
+
+
+		AnimationClip[] clips = anim.runtimeAnimatorController.animationClips;
+		foreach (AnimationClip clip in clips) {
+			switch (clip.name) {
+				case "Grabbing":
+					attackTime = clip.length;
+					break;
+			}
+		}
+
+		grabHitBox.EnableHitBox();
+
+		if (grabHitBox.grabSuccess) {
+			Debug.Log("SUCCESS GRAB");
+		}
+
+
+		if (attackTime != -1.0f) {
+
+
+			Invoke("AttackCoolDown", attackTime);
+
+			comboTime = attackTime;
+
+			//anim.Play("Grabbing");
+
+
+			player.startedAttack = true;
+			//player.oldPosition = transform.position;
+			canAttack = false;
+		}
+	}
+
+
+	void Block() {
         if (isBlocking) {
             player.hasControl = false;
 

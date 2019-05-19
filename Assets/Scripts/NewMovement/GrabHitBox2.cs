@@ -2,13 +2,13 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class GrabHitBox : MonoBehaviour
+public class GrabHitBox2 : MonoBehaviour
 {
 	public Animator anim;
 	BoxCollider col;
-	public Player1Combat playerCombat;
-	public Player2Movement opponent;
-	string opponentTag = "Player2";
+	public Player2Combat playerCombat;
+	public Player1Movement opponent;
+	string opponentTag = "Player1";
 	public bool grabSuccess;
 
 	// Start is called before the first frame update

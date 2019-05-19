@@ -29,6 +29,7 @@ public class Player1Combat : MonoBehaviour {
     bool spongebobPicked, shrekPicked, shaggyPicked, sasukePicked;
 
 	public bool isGrabbing;
+	public GrabHitBox grabHitBox;
 
     // Start is called before the first frame update
     void Start() {
@@ -73,7 +74,7 @@ public class Player1Combat : MonoBehaviour {
             spongebob.SetActive(false);
         }
 
-        anim = characterPicked.GetComponent<Animator>();
+        anim.avatar = characterPicked.GetComponent<Animator>().avatar;
 
     }
 
@@ -143,20 +144,26 @@ public class Player1Combat : MonoBehaviour {
 		float attackTime = -1.0f;
 
 
-
-
-
 		AnimationClip[] clips = anim.runtimeAnimatorController.animationClips;
 		foreach (AnimationClip clip in clips) {
 			switch (clip.name) {
 				case "Grabbing":
 					attackTime = clip.length;
 					break;
-				case "KB_m_Jab_R":
-					attackTime += clip.length;
-					break;
 			}
 		}
+
+		grabHitBox.EnableHitBox();
+
+		if (grabHitBox.grabSuccess) {
+			Debug.Log("SUCCESS GRAB");
+		}
+
+		//anim.SetBool("grabSuccess", grabHitBox.grabSuccess);
+
+
+
+
 
 		if (attackTime != -1.0f) {
 
@@ -165,9 +172,8 @@ public class Player1Combat : MonoBehaviour {
 
 			comboTime = attackTime;
 
-			if (comboTime > 0) {
-				anim.Play("Grabbing");
-			}
+			//anim.Play("Grabbing");
+			
 
 			player.startedAttack = true;
 			//player.oldPosition = transform.position;

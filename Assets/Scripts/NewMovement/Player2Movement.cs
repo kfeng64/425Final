@@ -70,6 +70,8 @@ public class Player2Movement : MonoBehaviour {
     GameObject spongebob, shrek, shaggy, sasuke;
     public bool spongebobPicked, shrekPicked, shaggyPicked, sasukePicked;
 
+	public bool inGrabRange;
+
     private AnimatorClipInfo[] clipInfo;
 
     //public string GetCurrentClipName() {
@@ -117,8 +119,9 @@ public class Player2Movement : MonoBehaviour {
             spongebob.SetActive(false);
         }
 
-        anim = characterPicked.GetComponent<Animator>();
-    }
+		//anim = characterPicked.GetComponent<Animator>();
+		anim.avatar = characterPicked.GetComponent<Animator>().avatar;
+	}
 
     private void Update() {
 
@@ -175,7 +178,27 @@ public class Player2Movement : MonoBehaviour {
             }
         }
 
+		
+
     }
+
+	public void gotGrabbed() {
+
+		Debug.Log("GOT GRABBED");
+
+		Invoke("grabAnim", .1f);
+	}
+
+	void grabAnim() {
+		if (inGrabRange) {
+			hasControl = false;
+			transform.LookAt(opponent.transform);
+			transform.eulerAngles = new Vector3(0, transform.eulerAngles.y, 0);
+			hitStunTimer = 1.5f;
+
+			anim.Play("Grabbed");
+		}
+	}
 
 
     void OnGroundAfterAirborne() {
