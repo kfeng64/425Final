@@ -22,7 +22,8 @@ public class BackFistHitBox : MonoBehaviour {
 
         if (Input.GetKeyDown(hit) && Input.GetKey(sprint) && playerCombat.canAttack) {
             EnableHitBox();
-        }
+			playerCombat.canAttack = false;
+		}
 
 
         if (col.enabled == false) {

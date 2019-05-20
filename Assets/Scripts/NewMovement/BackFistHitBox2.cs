@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class BackFistHitBox2 : MonoBehaviour {
-    public Animator anim;
+    Animator anim;
     KeyCode hit = KeyCode.Keypad1;
     KeyCode sprint = KeyCode.KeypadPeriod;
     string opponentTag = "Player1";
@@ -22,6 +22,7 @@ public class BackFistHitBox2 : MonoBehaviour {
 
         if (Input.GetKeyDown(hit) && Input.GetKey(sprint) && playerCombat.canAttack) {
             EnableHitBox();
+			playerCombat.canAttack = false;
         }
 
 

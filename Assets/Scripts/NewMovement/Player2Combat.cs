@@ -442,7 +442,7 @@ public class Player2Combat : MonoBehaviour {
         }
 
         if (attackTime != -1.0f) {
-            canAttack = false;
+            //canAttack = false;
             Invoke("AttackCoolDown", attackTime);
 
             comboTime = attackTime;
