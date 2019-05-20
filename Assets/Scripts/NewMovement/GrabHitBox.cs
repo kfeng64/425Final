@@ -52,7 +52,7 @@ public class GrabHitBox : MonoBehaviour
 		opponent.gotGrabbed();
 
 
-		StartCoroutine(DealDamage(2));
+		//StartCoroutine(DealDamage(2));
 
 
 		Invoke("DisableHitBox", attackTime);

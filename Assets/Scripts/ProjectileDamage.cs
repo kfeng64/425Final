@@ -34,6 +34,12 @@ public class ProjectileDamage : MonoBehaviour
 			isProjectile = false;
 		}
 
+		if (transform.parent != null) {
+			gameObject.GetComponent<CapsuleCollider>().enabled = false;
+		} else {
+			gameObject.GetComponent<CapsuleCollider>().enabled = true;
+		}
+
 
     }
 

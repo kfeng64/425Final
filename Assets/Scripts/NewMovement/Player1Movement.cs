@@ -93,7 +93,18 @@ public class Player1Movement : MonoBehaviour {
         sasuke = transform.GetChild(3).gameObject;
 
         GameObject characterPicked = null;
-        spongebobPicked = true;
+
+		if (PlayerSelection.P1Choice == 0) {
+			spongebobPicked = true;
+		} else if (PlayerSelection.P1Choice == 1) {
+			shrekPicked = true;
+		} else if (PlayerSelection.P1Choice == 2) {
+			shaggyPicked = true;
+		} else if (PlayerSelection.P1Choice == 3) {
+			sasukePicked = true;
+		}
+
+		//spongebobPicked = true;
 
         if (spongebobPicked) {
             characterPicked = spongebob;
@@ -120,6 +131,7 @@ public class Player1Movement : MonoBehaviour {
             spongebob.SetActive(false);
         }
 
+		characterPicked.SetActive(true);
 		anim.avatar = characterPicked.GetComponent<Animator>().avatar;
 	}
 
@@ -196,7 +208,18 @@ public class Player1Movement : MonoBehaviour {
 			hitStunTimer = 1.5f;
 
 			anim.Play("Grabbed");
+
+			StartCoroutine(GrabDamage(2));
+
 		}
+	}
+
+	IEnumerator GrabDamage(int damage) {
+
+		health -= damage;
+		yield return new WaitForSeconds(.8f);
+		health -= damage;
+		//print(opponent.health);
 	}
 
 	public void hitByProjectile() {

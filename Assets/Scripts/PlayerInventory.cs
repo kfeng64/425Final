@@ -80,6 +80,7 @@ public class PlayerInventory : MonoBehaviour
 	private void OnTriggerEnter(Collider other) {
 		if (!hasItem && other.CompareTag("Item")) {
 			item = Instantiate(other.gameObject, itemSlot);
+			item.transform.position = itemSlot.position;
 			itemRB = item.GetComponent<Rigidbody>();
 			item.GetComponent<ProjectileDamage>().parent = gameObject;
 			Destroy(other.gameObject);

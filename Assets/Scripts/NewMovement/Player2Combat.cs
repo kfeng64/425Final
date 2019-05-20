@@ -26,7 +26,7 @@ public class Player2Combat : MonoBehaviour {
     public AudioSource hitSound2;
     public AudioSource blockSound;
     GameObject spongebob, shrek, shaggy, sasuke;
-    bool spongebobPicked, shrekPicked, shaggyPicked, sasukePicked;
+    public bool spongebobPicked, shrekPicked, shaggyPicked, sasukePicked;
 
 	public bool isGrabbing;
 	public GrabHitBox2 grabHitBox;
@@ -44,7 +44,17 @@ public class Player2Combat : MonoBehaviour {
         sasuke = transform.GetChild(3).gameObject;
 
         GameObject characterPicked = null;
-        shrekPicked = true;
+
+		if (PlayerSelection.P2Choice == 0) {
+			spongebobPicked = true;
+		} else if (PlayerSelection.P2Choice == 1) {
+			shrekPicked = true;
+		} else if (PlayerSelection.P2Choice == 2) {
+			shaggyPicked = true;
+		} else if (PlayerSelection.P2Choice == 3) {
+			sasukePicked = true;
+		}
+		//shrekPicked = true;
 
         if (spongebobPicked) {
             characterPicked = spongebob;
@@ -71,6 +81,7 @@ public class Player2Combat : MonoBehaviour {
             spongebob.SetActive(false);
         }
 
+		characterPicked.SetActive(true);
 		anim.avatar = characterPicked.GetComponent<Animator>().avatar;
 	}
 
