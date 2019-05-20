@@ -25,9 +25,11 @@ public class CharacterChoice : MonoBehaviour
 
 	bool startColor;
 
+	public TextMeshProUGUI p1Wins, p2Wins;
 
-    // Start is called before the first frame update
-    void Start()
+
+	// Start is called before the first frame update
+	void Start()
     {
 
 		p1Curr = p2Curr = 0;
@@ -43,6 +45,9 @@ public class CharacterChoice : MonoBehaviour
 
 		timer = 0;
 		startColor = true;
+
+		p1Wins.text = "Player 1 \n " + PlayerSelection.p1WinCount;
+		p2Wins.text = "Player 2 \n " + PlayerSelection.p2WinCount;
 	}
 
     // Update is called once per frame

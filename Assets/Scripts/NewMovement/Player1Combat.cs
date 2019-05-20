@@ -8,11 +8,11 @@ public class Player1Combat : MonoBehaviour {
     public Player2Movement opponent;
     public SpinAttackHitBox spinHitBox;
     string opponentTag = "Player2";
-    KeyCode punch = KeyCode.E;
-    KeyCode strongHit = KeyCode.Q;
-    KeyCode spin = KeyCode.R;
-    KeyCode block = KeyCode.C;
-	KeyCode grab = KeyCode.G;
+    KeyCode punch = KeyCode.F;
+    KeyCode strongHit = KeyCode.G;
+    KeyCode spin = KeyCode.H;
+    KeyCode block = KeyCode.R;
+	KeyCode grab = KeyCode.T;
 
     //public GameObject o1, o2;
 
@@ -170,6 +170,7 @@ public class Player1Combat : MonoBehaviour {
 
 		if (grabHitBox.grabSuccess) {
 			Debug.Log("SUCCESS GRAB");
+			attackTime = 10f;
 		}
 
 		//anim.SetBool("grabSuccess", grabHitBox.grabSuccess);

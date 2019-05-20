@@ -46,12 +46,12 @@ public class ArenaCameraController : MonoBehaviour
 
 	void Awake() {
 		//checking if there's already a game manager
-		if (cFollow == null) {
-			DontDestroyOnLoad(gameObject);
-			cFollow = this;
-		} else if (cFollow != this) {
-			Destroy(gameObject);
-		}
+		//if (cFollow == null) {
+		//	DontDestroyOnLoad(gameObject);
+		//	cFollow = this;
+		//} else if (cFollow != this) {
+		//	Destroy(gameObject);
+		//}
 	}
 
 	// Use this for initialization

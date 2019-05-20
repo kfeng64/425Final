@@ -8,11 +8,11 @@ public class Player2Combat : MonoBehaviour {
     public Player1Movement opponent;
     public SpinAttackHitBox2 spinHitBox;
     string opponentTag = "Player1";
-    KeyCode punch = KeyCode.Quote;
-    KeyCode strongHit = KeyCode.Semicolon;
-    KeyCode spin = KeyCode.L;
-    KeyCode block = KeyCode.Slash;
-	KeyCode grab = KeyCode.K;
+    KeyCode punch = KeyCode.Keypad1;
+    KeyCode strongHit = KeyCode.Keypad2;
+    KeyCode spin = KeyCode.Keypad3;
+    KeyCode block = KeyCode.Keypad4;
+	KeyCode grab = KeyCode.Keypad5;
 
 	//public GameObject o1, o2;
 

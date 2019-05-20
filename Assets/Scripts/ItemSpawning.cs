@@ -19,7 +19,7 @@ public class ItemSpawning : MonoBehaviour
     {
         if (timer < 0) {
 			timer = spawnRate;
-			Instantiate(item, new Vector3(Random.Range(-4, 4), 10, Random.Range(-4, 4)), Quaternion.identity);
+			Instantiate(item, new Vector3(Random.Range(-10, 10), 10, Random.Range(-15, 15)), Quaternion.identity);
 		} else {
 			timer -= Time.deltaTime;
 		}

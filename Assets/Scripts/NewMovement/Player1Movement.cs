@@ -69,6 +69,7 @@ public class Player1Movement : MonoBehaviour {
     public Slider healthBar;
     GameObject spongebob, shrek, shaggy, sasuke;
     public bool spongebobPicked, shrekPicked, shaggyPicked, sasukePicked;
+	public AudioSource hitsound;
 
 	public bool inGrabRange;
 
@@ -198,6 +199,8 @@ public class Player1Movement : MonoBehaviour {
 		Debug.Log("GOT GRABBED");
 
 		Invoke("grabAnim", .1f);
+
+		
 	}
 
 	void grabAnim() {
@@ -226,6 +229,8 @@ public class Player1Movement : MonoBehaviour {
 		hasControl = false;
 
 		hitStunTimer = .9f;
+
+		hitsound.Play();
 
 		anim.Play("GroundHitStun");
 		health -= 5;

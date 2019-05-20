@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class PlayerInventory : MonoBehaviour
 {
-	KeyCode throwKey = KeyCode.Z;
+	KeyCode throwKey;
 
 	public bool hasItem;
 	Collider player;
@@ -21,17 +21,17 @@ public class PlayerInventory : MonoBehaviour
 		player = GetComponent<CharacterController>();
 		hasItem = false;
 
-		itemSlot = transform.GetChild(10);
+		itemSlot = transform.GetChild(9);
 
 		anim = GetComponent<Animator>();
 		item = null;
 
 		if (player.gameObject.CompareTag("Player1")) {
 			opponent = GameObject.FindGameObjectWithTag("Player2");
-			throwKey = KeyCode.Z;
+			throwKey = KeyCode.Y;
 		} else {
 			opponent = GameObject.FindGameObjectWithTag("Player1");
-			throwKey = KeyCode.M;
+			throwKey = KeyCode.Keypad6;
 		}
 
     }
@@ -48,9 +48,10 @@ public class PlayerInventory : MonoBehaviour
 
 	IEnumerator throwItem() {
 
-		Vector3 towardsOpponent = opponent.transform.position - player.gameObject.transform.position.normalized;
+		Vector3 towardsOpponent = (opponent.transform.position - player.gameObject.transform.position).normalized;
 
 		player.transform.LookAt(opponent.transform);
+		//player.transform.forward = towardsOpponent;
 		anim.Play("KB_KnifeThrow");
 
 
@@ -63,7 +64,7 @@ public class PlayerInventory : MonoBehaviour
 		item.transform.LookAt(opponent.transform);
 
 		itemRB.useGravity = true;
-		itemRB.AddForce(item.transform.forward * 5, ForceMode.Impulse);
+		itemRB.AddForce(item.transform.forward * 20, ForceMode.Impulse);
 
 		itemRB.AddRelativeTorque(Vector3.right * 100);
 

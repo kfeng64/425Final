@@ -47,9 +47,9 @@ public class Player2Movement : MonoBehaviour {
     KeyCode right = KeyCode.RightArrow;
     KeyCode up = KeyCode.UpArrow;
     KeyCode down = KeyCode.DownArrow;
-    KeyCode jump = KeyCode.Period;
+    KeyCode jump = KeyCode.Keypad0;
     //KeyCode roll = KeyCode.RightShift;
-    KeyCode sprint = KeyCode.Comma;
+    KeyCode sprint = KeyCode.KeypadPeriod;
     String playerH = "P2Horizontal";
     String playerV = "P2Vertical";
     String opponentAtkArea = "AttackArea1";
@@ -69,6 +69,7 @@ public class Player2Movement : MonoBehaviour {
     public Slider healthBar;
     GameObject spongebob, shrek, shaggy, sasuke;
     public bool spongebobPicked, shrekPicked, shaggyPicked, sasukePicked;
+	public AudioSource hitsound;
 
 	public bool inGrabRange;
 
@@ -195,6 +196,8 @@ public class Player2Movement : MonoBehaviour {
 	public void gotGrabbed() {
 
 		Invoke("grabAnim", .1f);
+
+		
 	}
 
 	void grabAnim() {
@@ -226,6 +229,7 @@ public class Player2Movement : MonoBehaviour {
 		
 		hitStunTimer = .9f;
 
+		hitsound.Play();
 		anim.Play("GroundHitStun");
 		health -= 5;
 	}

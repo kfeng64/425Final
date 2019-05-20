@@ -24,6 +24,7 @@ public class ItemRotation : MonoBehaviour {
 
 		if (transform.position.y < 1.5f) {
 			falling = false;
+			//itemRB.isKinematic = true;
 		}
 
 		if (falling) {
