@@ -64,7 +64,7 @@ public class PlayerInventory : MonoBehaviour
 		item.transform.LookAt(opponent.transform);
 
 		itemRB.useGravity = true;
-		itemRB.AddForce(item.transform.forward * 20, ForceMode.Impulse);
+		itemRB.AddForce(item.transform.forward * 15, ForceMode.Impulse);
 
 		itemRB.AddRelativeTorque(Vector3.right * 100);
 

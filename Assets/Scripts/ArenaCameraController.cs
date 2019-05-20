@@ -61,6 +61,11 @@ public class ArenaCameraController : MonoBehaviour
 
 	// Update is called once per frame
 	void Update() {
+
+		if (Input.GetKeyDown(KeyCode.Escape)) {
+			Application.Quit();
+		}
+
 		distance = target1.position - target2.position;
 		if (camDistance >= 10.0f)
 			camDistance = 10.0f;

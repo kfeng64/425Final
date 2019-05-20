@@ -865,9 +865,7 @@ public class Player1Movement : MonoBehaviour {
 		if (collision.gameObject.CompareTag("Projectile")) {
 			if (collision.GetComponent<ProjectileDamage>().parent != gameObject) {
 				hitByProjectile();
-				collision.gameObject.GetComponent<Rigidbody>().isKinematic = true;
-				collision.transform.SetParent(transform);
-				collision.GetComponent<Collider>().enabled = false;
+				Destroy(collision.gameObject);
 			}
 
 		}
