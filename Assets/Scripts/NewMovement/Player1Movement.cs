@@ -47,9 +47,9 @@ public class Player1Movement : MonoBehaviour {
     KeyCode right = KeyCode.D;
     KeyCode up = KeyCode.W;
     KeyCode down = KeyCode.S;
-    KeyCode jump = KeyCode.Space;
+    KeyCode jump = KeyCode.V;
     //KeyCode roll = KeyCode.LeftShift;
-    KeyCode sprint = KeyCode.LeftShift;
+    KeyCode sprint = KeyCode.B;
     String playerH = "P1Horizontal";
     String playerV = "P1Vertical";
     String opponentAtkArea = "AttackArea2";

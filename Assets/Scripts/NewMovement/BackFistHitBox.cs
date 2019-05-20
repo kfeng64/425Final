@@ -4,8 +4,8 @@ using UnityEngine;
 
 public class BackFistHitBox : MonoBehaviour {
     Animator anim;
-    KeyCode hit = KeyCode.E;
-    KeyCode sprint = KeyCode.LeftShift;
+    KeyCode hit = KeyCode.F;
+    KeyCode sprint = KeyCode.B;
     string opponentTag = "Player2";
     BoxCollider col;
     public Player1Combat playerCombat;
