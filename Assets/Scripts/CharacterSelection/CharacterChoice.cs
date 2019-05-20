@@ -53,6 +53,10 @@ public class CharacterChoice : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+		if (Input.GetKeyDown(KeyCode.Escape)) {
+			Application.Quit();
+		}
+
 		p1[p1Curr].GetComponent<Image>().color = Color.white;
 		p2[p2Curr].GetComponent<Image>().color = Color.white;
 
